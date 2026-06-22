@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#10284A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="care4you">
+<link rel="manifest" href="data:application/json,{
+  &quot;name&quot;:&quot;care4you&quot;,
+  &quot;short_name&quot;:&quot;care4you&quot;,
+  &quot;start_url&quot;:&quot;.&quot;,
+  &quot;display&quot;:&quot;standalone&quot;,
+  &quot;background_color&quot;:&quot;#EAF1F4&quot;,
+  &quot;theme_color&quot;:&quot;#10284A&quot;
+}">
+<title>care4you – Bewegung & Lebensqualität</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --moss:    #10284A; --moss-mid:#163558; --moss-lt:#0F7A66;
+  --sage:    #7FD0C0; --sage-lt:#D2EFE9;
+  --sand:    #EAF1F4; --sand-dk:#D4E2E8;
+  --terra:   #D4622A; --amber:#D49818; --amber-bg:#FEF4DC;
+  --sky:     #3A7BC8; --sky-lt:#D0E4F8;
+  --text:    #0E1F33; --text-2:#3A4F63; --text-3:#7C909E;
+  --white:   #FFFFFF; --danger:#B03020;
+  --r:14px;  --r-sm:9px;
+  --shadow:  0 2px 16px rgba(16,40,74,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--sand);color:var(--text);
+  max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── SCREENS ── */
+.screen{display:none;padding-bottom:88px;min-height:100vh}
+.screen.active{display:block;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BNAV ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+  background:#fff;border-top:1px solid var(--sand-dk);display:flex;z-index:100;
+  box-shadow:0 -4px 20px rgba(16,40,74,.08)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 3px 7px;gap:2px;
+  border:none;background:none;cursor:pointer;color:var(--text-3);font-size:.55rem;font-weight:500;
+  font-family:inherit;transition:color .18s;position:relative}
+.nb .ni{font-size:1.25rem;line-height:1}.nb.active{color:var(--moss)}.nb.active .nl{font-weight:700}
+.nb-badge{position:absolute;top:4px;right:calc(50% - 20px);background:var(--terra);color:#fff;
+  font-size:.48rem;font-weight:800;border-radius:8px;padding:1px 5px;line-height:1.4}
+
+/* ── SHARED ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);margin:0 14px 10px;
+  overflow:hidden;border:1px solid var(--sand-dk)}
+.ci{padding:14px}
+.sec-lbl{font-size:.64rem;font-weight:700;color:var(--text-3);text-transform:uppercase;
+  letter-spacing:.06em;padding:14px 16px 5px}
+.tag{display:inline-flex;align-items:center;border-radius:20px;font-size:.6rem;font-weight:700;padding:2px 8px}
+.tg{background:#E4F0D8;color:var(--moss)}.ta{background:var(--amber-bg);color:var(--amber)}
+.tr{background:#FDECEA;color:var(--danger)}.tb{background:var(--sky-lt);color:var(--sky)}
+.btn-p{background:var(--moss);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;
+  font-size:.84rem;font-weight:700;font-family:inherit;cursor:pointer;width:calc(100% - 28px);
+  margin:0 14px 10px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.btn-p:active{background:var(--moss-mid);transform:scale(.98)}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);background:var(--text);
+  color:#fff;border-radius:24px;padding:9px 18px;font-size:.74rem;font-weight:600;opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;pointer-events:none;
+  max-width:340px;text-align:center;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════ */
+.topbar{background:var(--moss);color:#fff;padding:13px 18px;display:flex;
+  align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tb-logo{font-size:.9rem;font-weight:800}
+.tb-logo em{color:var(--sage);font-style:normal}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:.68rem}
+.tracking-dot{width:8px;height:8px;border-radius:50%;background:#3FD0B5;animation:pulse 2s infinite}
+.tracking-dot.off{background:var(--sand-dk);animation:none}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(63,208,181,.4)}
+  50%{opacity:.85;box-shadow:0 0 0 5px rgba(63,208,181,0)}}
+
+/* ══════════════════════════════════════════
+   SCREEN 1 – LIVE TRACKER
+══════════════════════════════════════════ */
+.hero-tracker{background:linear-gradient(150deg,var(--moss) 0%,var(--moss-mid) 100%);
+  padding:22px 20px 34px;color:#fff;position:relative;overflow:hidden}
+.hero-tracker::after{content:'';position:absolute;bottom:-18px;left:0;right:0;
+  height:36px;background:var(--sand);border-radius:18px 18px 0 0}
+.ht-greeting{font-size:.72rem;opacity:.7;margin-bottom:2px}
+.ht-name{font-size:1.15rem;font-weight:800}
+
+/* Big step counter */
+.big-counter-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:0 4px 24px rgba(16,40,74,.14);overflow:hidden;border:1px solid var(--sand-dk)}
+.bcc-top{background:linear-gradient(135deg,var(--moss),#4A7A28);padding:22px 20px 18px;
+  color:#fff;display:flex;justify-content:space-between;align-items:flex-start}
+.bcc-left{}
+.step-label{font-size:.65rem;font-weight:700;opacity:.72;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:5px}
+.step-number{font-size:4rem;font-weight:900;line-height:1;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;transition:all .3s}
+.step-unit{font-size:.78rem;opacity:.72;margin-top:3px}
+.bcc-ring{position:relative;flex-shrink:0}
+.bcc-ring svg{transform:rotate(-90deg)}
+.ring-pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct-val{font-size:.95rem;font-weight:800;color:#fff;line-height:1}
+.ring-pct-lbl{font-size:.48rem;opacity:.7;margin-top:1px}
+.bcc-bar{padding:14px 18px;border-bottom:1px solid var(--sand-dk)}
+.bcc-bar-row{display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:7px}
+.bcc-bar-lbl{color:var(--text-2);font-weight:600}
+.bcc-bar-val{color:var(--text);font-weight:800}
+.bar-track{height:10px;background:var(--sand-dk);border-radius:5px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--sage),var(--moss-lt));
+  transition:width 1s ease;position:relative}
+.bar-fill::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border-radius:50%;background:#fff;
+  box-shadow:0 0 8px rgba(40,168,144,.6)}
+.bcc-metrics{display:grid;grid-template-columns:repeat(3,1fr);padding:12px 14px 14px;gap:0}
+.bcc-metric{text-align:center;padding:6px}
+.bcc-metric+.bcc-metric{border-left:1px solid var(--sand-dk)}
+.bm-val{font-size:.95rem;font-weight:800;color:var(--moss)}
+.bm-lbl{font-size:.58rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+
+/* Tracking Controls */
+.track-controls{margin:0 14px 10px;display:flex;gap:9px}
+.tc-btn{flex:1;border:none;border-radius:var(--r-sm);padding:13px;font-size:.8rem;font-weight:700;
+  font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.tc-btn:active{transform:scale(.97)}
+.tc-start{background:var(--moss);color:#fff}
+.tc-pause{background:var(--amber);color:#fff}
+.tc-stop{background:#fff;color:var(--danger);border:1.5px solid var(--danger)}
+.tc-btn.disabled{opacity:.45;cursor:not-allowed}
+
+/* Week chart */
+.week-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);box-shadow:var(--shadow);
+  padding:14px;border:1px solid var(--sand-dk)}
+.wc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.wc-title{font-size:.8rem;font-weight:800}
+.wc-avg{font-size:.7rem;font-weight:700;color:var(--moss)}
+.week-bars{display:flex;align-items:flex-end;gap:6px;height:70px}
+.wb-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.wb-bar{width:100%;border-radius:4px 4px 0 0;min-height:5px;transition:height .6s ease;
+  cursor:pointer;position:relative}
+.wb-bar.goal{background:linear-gradient(180deg,var(--moss-lt),var(--moss));
+  box-shadow:0 0 10px rgba(40,168,144,.35)}
+.wb-bar.partial{background:linear-gradient(180deg,#D4A040,var(--amber))}
+.wb-bar.low{background:var(--sand-dk)}
+.wb-bar.today{box-shadow:0 0 14px rgba(40,168,144,.5)}
+.wb-day{font-size:.6rem;font-weight:600;color:var(--text-3)}
+.wb-day.today{color:var(--moss);font-weight:800}
+.wb-steps{font-size:.55rem;color:var(--text-3);margin-top:-2px}
+
+/* Activity alerts */
+.alert-banner{margin:0 14px 10px;border-radius:var(--r-sm);padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:all .2s}
+.ab-ico{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.ab-title{font-size:.78rem;font-weight:700;margin-bottom:2px}
+.ab-sub{font-size:.7rem;opacity:.8;line-height:1.4}
+.ab-action{font-size:.68rem;font-weight:700;margin-top:5px;text-decoration:underline;cursor:pointer}
+.alert-banner.nudge{background:#FEF4DC;border-left:4px solid var(--amber)}
+.alert-banner.nudge .ab-title{color:var(--amber)}
+.alert-banner.goal{background:#E8F5E0;border-left:4px solid var(--moss-lt)}
+.alert-banner.goal .ab-title{color:var(--moss)}
+.alert-banner.danger{background:#FDECEA;border-left:4px solid var(--danger)}
+.alert-banner.danger .ab-title{color:var(--danger)}
+
+/* Hourly chart */
+.hourly-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);box-shadow:var(--shadow);
+  padding:14px;border:1px solid var(--sand-dk)}
+.hourly-bars{display:flex;align-items:flex-end;gap:3px;height:44px;margin-top:10px}
+.hb{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:height .5s ease}
+.hb.active{background:var(--moss-lt)}
+.hb.low{background:var(--sand-dk)}
+.hb.warn{background:var(--amber)}
+.hb.now{background:var(--moss);box-shadow:0 0 8px rgba(16,40,74,.4)}
+.hourly-labels{display:flex;justify-content:space-between;margin-top:5px}
+.hl-lbl{font-size:.55rem;color:var(--text-3)}
+
+/* Permission card */
+.perm-card{background:linear-gradient(135deg,var(--sky),#1A4A8A);margin:14px;
+  border-radius:var(--r);padding:22px;color:#fff;text-align:center}
+.pc-ico{font-size:2.4rem;margin-bottom:12px}
+.pc-title{font-size:1rem;font-weight:800;margin-bottom:8px}
+.pc-body{font-size:.78rem;opacity:.85;line-height:1.6;margin-bottom:16px;max-width:280px;margin-left:auto;margin-right:auto}
+.pc-btn{background:#fff;color:var(--sky);border:none;border-radius:var(--r-sm);padding:13px 20px;
+  font-size:.84rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;transition:all .15s}
+.pc-btn:active{transform:scale(.98)}
+.pc-skip{font-size:.68rem;opacity:.65;margin-top:10px;cursor:pointer;text-decoration:underline;display:block}
+
+/* ══════════════════════════════════════════
+   SCREEN 2 – GOALS & COACHING
+══════════════════════════════════════════ */
+.goals-hero{background:linear-gradient(160deg,var(--moss),var(--moss-mid));
+  padding:20px 18px 28px;color:#fff;position:relative;overflow:hidden}
+.goals-hero::after{content:'';position:absolute;bottom:-16px;left:0;right:0;
+  height:32px;background:var(--sand);border-radius:16px 16px 0 0}
+.gh-title{font-size:1.15rem;font-weight:800;margin-bottom:3px}
+.gh-sub{font-size:.72rem;opacity:.72}
+
+/* Goal card */
+.goal-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--sand-dk)}
+.gc-header{padding:13px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sand-dk)}
+.gc-ico{font-size:1.3rem}
+.gc-title{font-size:.84rem;font-weight:800;flex:1;color:var(--text)}
+.gc-status{font-size:.65rem;font-weight:700}
+.gc-body{padding:13px 15px}
+.gc-desc{font-size:.76rem;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+.gc-progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.gc-prog-lbl{font-size:.68rem;font-weight:600;color:var(--text-2)}
+.gc-prog-val{font-size:.72rem;font-weight:800;color:var(--moss)}
+.gc-bar{height:8px;background:var(--sand-dk);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.gc-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--sage),var(--moss-lt));transition:width .8s}
+.gc-why{background:var(--sage-lt);border-radius:var(--r-sm);padding:9px 11px;
+  font-size:.7rem;color:var(--moss-mid);line-height:1.5;border-left:3px solid var(--sage);margin-bottom:8px}
+.gc-why strong{color:var(--moss);font-weight:700}
+.gc-science{font-size:.65rem;color:var(--text-3);font-style:italic}
+.streak-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.streak-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.7rem;font-weight:700}
+.streak-dot.done{background:var(--moss);color:#fff}
+.streak-dot.today{background:var(--moss-lt);color:#fff;box-shadow:0 0 10px rgba(40,168,144,.4)}
+.streak-dot.miss{background:var(--sand-dk);color:var(--text-3)}
+.streak-dot.future{background:transparent;border:1.5px dashed var(--sand-dk);color:var(--text-3)}
+
+/* Coaching message */
+.coaching-card{background:linear-gradient(135deg,#10284A,#235A86);
+  margin:0 14px 10px;border-radius:var(--r);padding:16px;color:#fff}
+.cc-label{font-size:.6rem;font-weight:700;letter-spacing:.07em;opacity:.7;
+  text-transform:uppercase;margin-bottom:8px}
+.cc-msg{font-size:.88rem;font-weight:600;line-height:1.5;margin-bottom:10px}
+.cc-action{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:var(--r-sm);padding:9px 14px;font-size:.76rem;font-weight:700;
+  color:#fff;cursor:pointer;font-family:inherit;width:100%;text-align:left;
+  display:flex;align-items:center;gap:8px;transition:all .15s}
+.cc-action:active{background:rgba(255,255,255,.25)}
+
+/* Goal edit */
+.goal-edit-row{display:flex;align-items:center;gap:12px;padding:12px 15px;
+  border-bottom:1px solid var(--sand-dk);cursor:pointer}
+.ger-ico{font-size:1.1rem;width:28px;text-align:center}
+.ger-text{flex:1}
+.ger-title{font-size:.8rem;font-weight:700;color:var(--text)}
+.ger-sub{font-size:.66rem;color:var(--text-3);margin-top:1px}
+.ger-val{font-size:.8rem;font-weight:800;color:var(--moss)}
+.ger-arrow{color:var(--text-3);font-size:.7rem}
+
+/* ══════════════════════════════════════════
+   SCREEN 3 – NUTRITION & QUALITY OF LIFE
+══════════════════════════════════════════ */
+.nutr-hero{background:linear-gradient(160deg,#1E5A20,#2A8028);
+  padding:20px 18px 28px;color:#fff;position:relative;overflow:hidden}
+.nutr-hero::after{content:'';position:absolute;bottom:-16px;left:0;right:0;
+  height:32px;background:var(--sand);border-radius:16px 16px 0 0}
+
+/* Nutrition tracker */
+.meal-log{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--sand-dk)}
+.ml-header{padding:12px 15px;background:var(--sand);display:flex;
+  justify-content:space-between;align-items:center;border-bottom:1px solid var(--sand-dk)}
+.ml-title{font-size:.78rem;font-weight:800;color:var(--text)}
+.ml-add-btn{background:var(--moss);color:#fff;border:none;border-radius:8px;
+  padding:5px 10px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit}
+.meal-item{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-bottom:1px solid var(--sand-dk)}
+.meal-item:last-child{border-bottom:none}
+.mi-ico{font-size:1.2rem;flex-shrink:0}
+.mi-text{flex:1}
+.mi-name{font-size:.78rem;font-weight:600;color:var(--text)}
+.mi-time{font-size:.63rem;color:var(--text-3);margin-top:1px}
+.mi-quality{font-size:.65rem;font-weight:700;border-radius:20px;padding:2px 8px}
+.mi-g{background:#E4F0D8;color:var(--moss)}
+.mi-a{background:var(--amber-bg);color:var(--amber)}
+
+/* Hydration */
+.hydration-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);padding:14px;border:1px solid var(--sand-dk)}
+.hyd-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.hyd-title{font-size:.8rem;font-weight:800}
+.hyd-amount{font-size:1.1rem;font-weight:800;color:var(--sky)}
+.water-drops{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.drop{width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  cursor:pointer;transition:all .2s;border:2px solid var(--sand-dk);background:var(--sand)}
+.drop.filled{background:var(--sky);border-color:var(--sky);box-shadow:0 0 8px rgba(58,123,200,.3)}
+.drop:active{transform:rotate(-45deg) scale(.9)}
+.hyd-goal{font-size:.68rem;color:var(--text-3);margin-top:4px}
+.hyd-btn{background:var(--sky);color:#fff;border:none;border-radius:var(--r-sm);
+  padding:9px 14px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px}
+
+/* Nutrition tips */
+.nutr-tip{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);padding:14px;border-left:4px solid var(--moss-lt);
+  border-top:1px solid var(--sand-dk);border-right:1px solid var(--sand-dk);border-bottom:1px solid var(--sand-dk)}
+.nt-label{font-size:.6rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.nt-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:5px}
+.nt-body{font-size:.74rem;color:var(--text-2);line-height:1.55}
+.nt-science{font-size:.65rem;color:var(--text-3);margin-top:5px;font-style:italic}
+
+/* QoL checkins */
+.qol-check{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--sand-dk)}
+.qc-head{padding:12px 15px;background:linear-gradient(90deg,var(--sky),#2A5FA8);color:#fff}
+.qc-title{font-size:.8rem;font-weight:800}
+.qc-sub{font-size:.65rem;opacity:.8;margin-top:2px}
+.qc-body{padding:13px 15px}
+.qc-q{font-size:.78rem;font-weight:600;color:var(--text);margin-bottom:9px;line-height:1.4}
+.qc-scale{display:flex;gap:6px;margin-bottom:12px}
+.qcs-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:9px 3px;background:var(--sand);border:2px solid transparent;border-radius:var(--r-sm);
+  cursor:pointer;font-family:inherit;transition:all .15s}
+.qcs-btn .face{font-size:1.3rem}
+.qcs-btn .lbl{font-size:.55rem;font-weight:600;color:var(--text-3);text-align:center}
+.qcs-btn.sel{border-color:var(--sky);background:var(--sky-lt)}
+
+/* Barriers */
+.barrier-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);
+  box-shadow:var(--shadow);padding:14px;border:1px solid var(--sand-dk)}
+.bc-title{font-size:.8rem;font-weight:800;margin-bottom:10px;color:var(--text)}
+.barrier-item{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;
+  border-radius:var(--r-sm);margin-bottom:7px;cursor:pointer;transition:all .15s}
+.bi-open{background:#FDECEA;border-left:3px solid var(--danger)}
+.bi-progress{background:var(--amber-bg);border-left:3px solid var(--amber)}
+.bi-done{background:#E8F5E0;border-left:3px solid var(--moss-lt)}
+.bi-ico{font-size:1rem;margin-top:1px;flex-shrink:0}
+.bi-text{flex:1}
+.bi-title{font-size:.76rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.bi-action{font-size:.68rem;color:var(--text-2);line-height:1.4}
+.bi-status{font-size:.62rem;font-weight:700;margin-top:4px}
+
+/* ══════════════════════════════════════════
+   SCREEN 4 – NOTIFICATIONS & SETTINGS
+══════════════════════════════════════════ */
+.notif-list{margin:0 14px;display:flex;flex-direction:column;gap:8px}
+.notif-item{background:#fff;border-radius:var(--r-sm);padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow-sm);
+  border:1px solid var(--sand-dk)}
+.ni-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ni-dot.unread{background:var(--moss-lt)}
+.ni-dot.read{background:var(--sand-dk)}
+.ni-body{flex:1}
+.ni-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.ni-msg{font-size:.7rem;color:var(--text-2);line-height:1.4}
+.ni-time{font-size:.62rem;color:var(--text-3);margin-top:3px}
+
+/* Settings toggles */
+.settings-section{margin:0 14px 10px;background:#fff;border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--sand-dk)}
+.ss-title{font-size:.64rem;font-weight:700;color:var(--text-3);text-transform:uppercase;
+  letter-spacing:.06em;padding:11px 14px 7px;background:var(--sand);border-bottom:1px solid var(--sand-dk)}
+.setting-row{display:flex;align-items:center;gap:11px;padding:12px 14px;
+  border-bottom:1px solid var(--sand-dk)}
+.setting-row:last-child{border-bottom:none}
+.sr-ico{font-size:.95rem;width:24px;text-align:center;flex-shrink:0}
+.sr-text{flex:1}
+.sr-label{font-size:.8rem;font-weight:600;color:var(--text)}
+.sr-sub{font-size:.65rem;color:var(--text-3);margin-top:1px}
+.toggle{width:46px;height:26px;background:var(--sand-dk);border-radius:13px;
+  position:relative;cursor:pointer;transition:background .22s;flex-shrink:0;border:none}
+.toggle.on{background:var(--moss)}
+.toggle-knob{width:22px;height:22px;background:#fff;border-radius:50%;position:absolute;
+  top:2px;left:2px;transition:transform .22s;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.toggle.on .toggle-knob{transform:translateX(20px)}
+
+/* Notification permission */
+.notif-perm{background:linear-gradient(135deg,var(--moss),var(--moss-mid));
+  margin:14px;border-radius:var(--r);padding:18px;color:#fff;text-align:center}
+.np-ico{font-size:2rem;margin-bottom:8px}
+.np-title{font-size:.9rem;font-weight:800;margin-bottom:5px}
+.np-body{font-size:.74rem;opacity:.82;line-height:1.5;margin-bottom:14px}
+.np-btn{background:#fff;color:var(--moss);border:none;border-radius:var(--r-sm);
+  padding:11px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,36,14,.5);
+  z-index:200;align-items:flex-end;max-width:430px;margin:0 auto}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--sand);border-radius:22px 22px 0 0;padding:18px;
+  width:100%;max-height:80vh;overflow-y:auto}
+.modal-handle{width:38px;height:4px;background:var(--sand-dk);border-radius:2px;margin:0 auto 14px}
+
+/* Goal setting slider */
+.goal-slider-val{text-align:center;font-size:2.4rem;font-weight:900;color:var(--moss);margin:12px 0}
+.goal-slider{width:100%;-webkit-appearance:none;height:8px;border-radius:4px;
+  background:linear-gradient(to right,var(--moss-lt) 0%,var(--moss-lt) 50%,var(--sand-dk) 50%,var(--sand-dk) 100%);
+  outline:none;cursor:pointer;margin-bottom:8px}
+.goal-slider::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;
+  border-radius:50%;background:var(--moss);box-shadow:0 2px 8px rgba(16,40,74,.4);cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════ TOPBAR ════ -->
+<div class="topbar">
+  <div class="tb-logo">care4<em>you</em></div>
+  <div class="tb-status">
+    <div class="tracking-dot" id="trackingDot"></div>
+    <span id="trackingLabel" style="font-size:.68rem;opacity:.85">Tracking aktiv</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1: LIVE BEWEGUNGS-TRACKER
+══════════════════════════════════════════ -->
+<div class="screen active" id="sc-track">
+
+  <div class="hero-tracker">
+    <div class="ht-greeting" id="htGreeting">Guten Morgen ☀️</div>
+    <div class="ht-name" id="htName">Hildegard</div>
+  </div>
+
+  <!-- Permission Card (shown first time) -->
+  <div id="permCard" style="display:none">
+    <div class="perm-card">
+      <div class="pc-ico">📱</div>
+      <div class="pc-title">Bewegungs-Tracking aktivieren</div>
+      <div class="pc-body">care4you nutzt den Beschleunigungssensor Ihres Handys um Schritte zu zählen – automatisch, ohne extra Gerät. Ihre Daten bleiben auf Ihrem Gerät.</div>
+      <button class="pc-btn" onclick="requestMotionPermission()">🚶 Tracking starten</button>
+      <span class="pc-skip" onclick="skipPermission()">Ohne Sensor-Tracking fortfahren</span>
+    </div>
+  </div>
+
+  <!-- Main counter -->
+  <div class="big-counter-card" id="mainCounter">
+    <div class="bcc-top">
+      <div class="bcc-left">
+        <div class="step-label">Schritte heute</div>
+        <div class="step-number" id="stepNum">0</div>
+        <div class="step-unit">von <span id="stepGoalDisp">5.000</span> Schritten</div>
+      </div>
+      <div class="bcc-ring">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="7"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="white" stroke-width="7"
+            stroke-dasharray="175.9" id="ringDash" stroke-dashoffset="176" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-pct"><div class="ring-pct-val" id="ringPct">0%</div><div class="ring-pct-lbl">Ziel</div></div>
+      </div>
+    </div>
+    <div class="bcc-bar">
+      <div class="bcc-bar-row">
+        <span class="bcc-bar-lbl">Tagesfortschritt</span>
+        <span class="bcc-bar-val"><span id="barCur">0</span> / <span id="barGoal">5.000</span></span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="mainBarFill" style="width:0%"></div></div>
+    </div>
+    <div class="bcc-metrics">
+      <div class="bcc-metric"><div class="bm-val" id="metDist">0,0</div><div class="bm-lbl">km</div></div>
+      <div class="bcc-metric"><div class="bm-val" id="metDur">0</div><div class="bm-lbl">Minuten</div></div>
+      <div class="bcc-metric"><div class="bm-val" id="metSpeed">0,0</div><div class="bm-lbl">km/h Ø</div></div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="track-controls">
+    <button class="tc-btn tc-start" id="btnStart" onclick="startTracking()">▶ Tracking starten</button>
+    <button class="tc-btn tc-pause disabled" id="btnPause" onclick="pauseTracking()" disabled>⏸ Pause</button>
+  </div>
+
+  <!-- Alert banner (dynamic) -->
+  <div id="alertBanner" style="display:none"></div>
+
+  <!-- Hourly activity -->
+  <div class="hourly-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.78rem;font-weight:800">Aktivität heute</span>
+      <span style="font-size:.65rem;color:var(--text-3)">24h-Verlauf</span>
+    </div>
+    <div class="hourly-bars" id="hourlyBars"></div>
+    <div class="hourly-labels">
+      <span class="hl-lbl">00</span><span class="hl-lbl">06</span>
+      <span class="hl-lbl">12</span><span class="hl-lbl">18</span><span class="hl-lbl">24</span>
+    </div>
+  </div>
+
+  <!-- Week chart -->
+  <div class="week-card">
+    <div class="wc-header">
+      <span class="wc-title">7-Tage-Verlauf</span>
+      <span class="wc-avg">Ø <span id="weekAvg">0</span> Schritte</span>
+    </div>
+    <div class="week-bars" id="weekBars"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2: ZIELE & COACHING
+══════════════════════════════════════════ -->
+<div class="screen" id="sc-goals">
+
+  <div class="goals-hero">
+    <div class="gh-title">Ihre Ziele & Coaching</div>
+    <div class="gh-sub">Persönlich · Angepasst · Erreichbar</div>
+  </div>
+
+  <!-- Daily coaching message -->
+  <div class="coaching-card" style="margin:18px 14px 10px">
+    <div class="cc-label">🤖 Ihr täglicher Coaching-Impuls</div>
+    <div class="cc-msg" id="coachingMsg">7.500 Schritte täglich reduzieren das Demenzrisiko um bis zu 51%. Sie schaffen das!</div>
+    <button class="cc-action" onclick="nextCoaching()">
+      <span>💡</span><span id="coachingAction">Tipp: Spaziergang nach dem Mittagessen einplanen</span>
+    </button>
+  </div>
+
+  <!-- Goal 1: Steps -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <span class="gc-ico">🚶</span>
+      <span class="gc-title">Tägliche Schritte</span>
+      <span class="gc-status" id="goalStepsStatus" style="color:var(--amber)">In Bearbeitung</span>
+    </div>
+    <div class="gc-body">
+      <div class="gc-desc">Ihr persönliches Schrittziel – basierend auf Ihrem Gesundheitsprofil.</div>
+      <div class="gc-progress-row">
+        <span class="gc-prog-lbl">Heute: <span id="goalStepsCur">0</span> Schritte</span>
+        <span class="gc-prog-val"><span id="goalStepsGoal">5.000</span> Ziel</span>
+      </div>
+      <div class="gc-bar"><div class="gc-bar-fill" id="goalStepsBar" style="width:0%"></div></div>
+      <div class="gc-why">
+        <strong>Warum dieses Ziel?</strong><br>
+        Studien zeigen: Bereits 3.800 Schritte täglich senken das Sterberisiko messbar. 5.000 Schritte sind für 65+ der optimale Einstieg. Jeder Schritt zählt.
+      </div>
+      <div class="gc-science">📖 Quellen: European Heart Journal 2023 · JAMA Neurology 2022</div>
+      <div style="margin-top:10px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px">7-Tage-Streak</div>
+        <div class="streak-row" id="stepStreak"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goal 2: Movement breaks -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <span class="gc-ico">⏰</span>
+      <span class="gc-title">Keine langen Sitzpausen</span>
+      <span class="gc-status" style="color:var(--moss-lt)">Aktiv</span>
+    </div>
+    <div class="gc-body">
+      <div class="gc-desc">Alle 60 Minuten kurz aufstehen und 5 Minuten bewegen.</div>
+      <div class="gc-progress-row">
+        <span class="gc-prog-lbl">Heute: <span id="breaksDone">0</span> Bewegungspausen</span>
+        <span class="gc-prog-val">8 Ziel</span>
+      </div>
+      <div class="gc-bar"><div class="gc-bar-fill" id="breaksBar" style="width:0%"></div></div>
+      <div class="gc-why"><strong>Warum?</strong> Langes Sitzen erhöht das Herzinfarktrisiko unabhängig von Sport. Kurze Pausen unterbrechen schädliche Sitzphasen.</div>
+    </div>
+  </div>
+
+  <!-- Goal 3: Outdoor -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <span class="gc-ico">🌳</span>
+      <span class="gc-title">Täglich draußen</span>
+      <span class="gc-status" id="outdoorStatus" style="color:var(--amber)">Heute noch nicht</span>
+    </div>
+    <div class="gc-body">
+      <div class="gc-desc">Mindestens 20 Minuten Aufenthalt im Freien täglich.</div>
+      <div class="gc-progress-row">
+        <span class="gc-prog-lbl">Heute: <span id="outdoorMin">0</span> Min</span>
+        <span class="gc-prog-val">20 Min Ziel</span>
+      </div>
+      <div class="gc-bar"><div class="gc-bar-fill" id="outdoorBar" style="width:0%"></div></div>
+      <div class="gc-why"><strong>Warum?</strong> Tageslicht reguliert den Schlaf-Wach-Rhythmus und liefert Vitamin D. Besonders wichtig für Kognition und Stimmung.</div>
+    </div>
+  </div>
+
+  <!-- Adjust Goal -->
+  <div class="card">
+    <div class="settings-section" style="margin:0;box-shadow:none">
+      <div class="ss-title">Ziele anpassen</div>
+      <div class="goal-edit-row" onclick="openGoalEdit()">
+        <div class="ger-ico">🎯</div>
+        <div class="ger-text"><div class="ger-title">Schrittziel</div><div class="ger-sub">Täglich</div></div>
+        <div class="ger-val" id="goalEditDisplay">5.000 Schritte</div>
+        <div class="ger-arrow">›</div>
+      </div>
+      <div class="goal-edit-row" onclick="showToast('Erinnerungszeiten konfigurieren')">
+        <div class="ger-ico">🔔</div>
+        <div class="ger-text"><div class="ger-title">Bewegungserinnerung</div><div class="ger-sub">Wenn Ziel bis 16:00 nicht erreicht</div></div>
+        <div class="ger-val">16:00</div>
+        <div class="ger-arrow">›</div>
+      </div>
+      <div class="goal-edit-row" onclick="showToast('Wochenberichte konfigurieren')">
+        <div class="ger-ico">📊</div>
+        <div class="ger-text"><div class="ger-title">Wochenbericht</div><div class="ger-sub">Jeden Sonntag 18:00</div></div>
+        <div class="ger-val">Aktiv</div>
+        <div class="ger-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3: ERNÄHRUNG & LEBENSQUALITÄT
+══════════════════════════════════════════ -->
+<div class="screen" id="sc-nutr">
+
+  <div class="nutr-hero">
+    <div style="font-size:1.15rem;font-weight:800;margin-bottom:3px">Ernährung & Lebensqualität</div>
+    <div style="font-size:.72rem;opacity:.75">Mahlzeiten · Flüssigkeit · Wohlbefinden</div>
+    <div style="position:absolute;bottom:-16px;left:0;right:0;height:32px;background:var(--sand);border-radius:16px 16px 0 0"></div>
+  </div>
+
+  <!-- QoL Check -->
+  <div class="qol-check" style="margin-top:18px">
+    <div class="qc-head">
+      <div class="qc-title">Wie geht es Ihnen gerade?</div>
+      <div class="qc-sub">Kurzer Check-in · <span id="qolTime">Jetzt</span></div>
+    </div>
+    <div class="qc-body">
+      <div class="qc-q">Wie fühlen Sie sich körperlich und seelisch?</div>
+      <div class="qc-scale">
+        <button class="qcs-btn" onclick="setQoL(1,this)"><span class="face">😞</span><span class="lbl">Sehr schlecht</span></button>
+        <button class="qcs-btn" onclick="setQoL(2,this)"><span class="face">😕</span><span class="lbl">Nicht gut</span></button>
+        <button class="qcs-btn" onclick="setQoL(3,this)"><span class="face">😐</span><span class="lbl">Okay</span></button>
+        <button class="qcs-btn" onclick="setQoL(4,this)"><span class="face">😊</span><span class="lbl">Gut</span></button>
+        <button class="qcs-btn" onclick="setQoL(5,this)"><span class="face">😄</span><span class="lbl">Sehr gut</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meal log -->
+  <div class="sec-lbl">🍽️ Mahlzeiten heute</div>
+  <div class="meal-log">
+    <div class="ml-header">
+      <span class="ml-title">Ernährungsprotokoll</span>
+      <button class="ml-add-btn" onclick="addMeal()">+ Mahlzeit</button>
+    </div>
+    <div id="mealList">
+      <div class="meal-item">
+        <span class="mi-ico">☕</span>
+        <div class="mi-text"><div class="mi-name">Frühstück</div><div class="mi-time">08:15</div></div>
+        <span class="mi-quality mi-g">Gut</span>
+      </div>
+      <div class="meal-item">
+        <span class="mi-ico">🍵</span>
+        <div class="mi-text"><div class="mi-name">Zwischenmahlzeit</div><div class="mi-time">10:30</div></div>
+        <span class="mi-quality mi-g">Gut</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nutrition tips -->
+  <div class="sec-lbl">💡 Ernährungs-Tipp</div>
+  <div class="nutr-tip" id="nutrTip">
+    <div class="nt-label">Tipp des Tages</div>
+    <div class="nt-title" id="ntTitle">Proteinreich frühstücken</div>
+    <div class="nt-body" id="ntBody">Ältere Menschen brauchen mehr Protein als früher – mind. 1,2g pro kg Körpergewicht täglich. Eier, Quark, Hülsenfrüchte und Fisch sind ideal. Protein erhält Muskelmasse und schützt vor Stürzen.</div>
+    <div class="nt-science" id="ntScience">📖 ESPEN Leitlinien 2023 · Deutsche Gesellschaft für Ernährung</div>
+  </div>
+
+  <!-- Hydration -->
+  <div class="sec-lbl">💧 Flüssigkeit</div>
+  <div class="hydration-card">
+    <div class="hyd-header">
+      <span class="hyd-title">Heute getrunken</span>
+      <span class="hyd-amount"><span id="hydAmount">0</span> ml</span>
+    </div>
+    <div class="water-drops" id="waterDrops"></div>
+    <div class="hyd-goal">Tagesziel: 1.500 ml (8 Gläser à 200ml)</div>
+    <button class="hyd-btn" onclick="addWater()">+ 200 ml trinken</button>
+  </div>
+
+  <!-- Barriers -->
+  <div class="sec-lbl">🚧 Hürden & Risiken abbauen</div>
+  <div class="barrier-card">
+    <div class="bc-title">Identifizierte Hürden</div>
+    <div id="barrierList"></div>
+    <button style="background:none;border:none;color:var(--moss);font-size:.74rem;font-weight:700;cursor:pointer;padding:8px 0;font-family:inherit" onclick="addBarrier()">+ Hürde melden</button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4: NOTIFICATIONS & EINSTELLUNGEN
+══════════════════════════════════════════ -->
+<div class="screen" id="sc-notif">
+
+  <!-- Notification permission -->
+  <div id="notifPermCard" style="display:none">
+    <div class="notif-perm">
+      <div class="np-ico">🔔</div>
+      <div class="np-title">Benachrichtigungen aktivieren</div>
+      <div class="np-body">care4you erinnert Sie: wenn Sie das Schrittziel fast erreicht haben, wenn Sie zu lange sitzen, und morgens zum Check-in.</div>
+      <button class="np-btn" onclick="requestNotifPermission()">Benachrichtigungen erlauben</button>
+    </div>
+  </div>
+
+  <!-- Notification log -->
+  <div class="sec-lbl" style="padding-top:14px">Letzte Benachrichtigungen</div>
+  <div class="notif-list" id="notifLog"></div>
+
+  <!-- Settings -->
+  <div class="sec-lbl">Einstellungen</div>
+
+  <div class="settings-section">
+    <div class="ss-title">Bewegungs-Erinnerungen</div>
+    <div class="setting-row">
+      <div class="sr-ico">🚶</div>
+      <div class="sr-text"><div class="sr-label">Schrittziel-Reminder</div><div class="sr-sub">Wenn Ziel bis 16:00 nicht erreicht</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">⏰</div>
+      <div class="sr-text"><div class="sr-label">Pause-Erinnerung</div><div class="sr-sub">Alle 60 Min. Aufstehen</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">🎉</div>
+      <div class="sr-text"><div class="sr-label">Ziel-Erreichung</div><div class="sr-sub">Wenn Tagesziel erreicht</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">⚠️</div>
+      <div class="sr-text"><div class="sr-label">Rückgang-Warnung</div><div class="sr-sub">Wenn Schritte 3 Tage sinken</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="ss-title">Gesundheit & Ernährung</div>
+    <div class="setting-row">
+      <div class="sr-ico">💧</div>
+      <div class="sr-text"><div class="sr-label">Trinkerinnerung</div><div class="sr-sub">Alle 2 Stunden</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">🍽️</div>
+      <div class="sr-text"><div class="sr-label">Mahlzeiten-Erinnerung</div><div class="sr-sub">08:00 · 12:30 · 18:30</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">☀️</div>
+      <div class="sr-text"><div class="sr-label">Morgen-Check-in</div><div class="sr-sub">Täglich 08:30</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-ico">🌙</div>
+      <div class="sr-text"><div class="sr-label">Abend-Reflexion</div><div class="sr-sub">Täglich 20:00</div></div>
+      <button class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="ss-title">App & Datenschutz</div>
+    <div class="setting-row" onclick="showToast('Sensor-Tracking: Daten nur lokal auf Gerät')">
+      <div class="sr-ico">📱</div>
+      <div class="sr-text"><div class="sr-label">Sensor-Tracking</div><div class="sr-sub">Beschleunigungssensor aktiv</div></div>
+      <button class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+    </div>
+    <div class="setting-row" onclick="showToast('Alle Daten werden nur lokal gespeichert')">
+      <div class="sr-ico">🔒</div>
+      <div class="sr-text"><div class="sr-label">Datenschutz</div><div class="sr-sub">Alle Daten lokal · kein Cloud-Upload</div></div>
+      <div style="font-size:.7rem;font-weight:700;color:var(--moss)">✓ Aktiv</div>
+    </div>
+  </div>
+
+  <div style="margin:0 14px 6px;padding:11px 13px;background:#fff;border-radius:var(--r-sm);font-size:.66rem;color:var(--text-3);line-height:1.6;border:1px solid var(--sand-dk);text-align:center">
+    care4you · care4youapp.com<br>
+    Kein Medizinprodukt · Hilfe zur Selbsthilfe · Beta
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb active" id="nb-track" onclick="switchScreen('sc-track')"><span class="ni">👟</span><span class="nl">Schritte</span></button>
+  <button class="nb" id="nb-goals" onclick="switchScreen('sc-goals')"><span class="ni">🎯</span><span class="nl">Ziele</span></button>
+  <button class="nb" id="nb-nutr" onclick="switchScreen('sc-nutr')"><span class="ni">🥗</span><span class="nl">Ernährung</span></button>
+  <button class="nb" id="nb-notif" onclick="switchScreen('sc-notif')"><span class="ni">🔔</span><span class="nl">Tipps</span><span class="nb-badge" id="notifBadge">3</span></button>
+</nav>
+
+<!-- Goal Edit Modal -->
+<div class="modal-overlay" id="goalModal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="font-size:.97rem;font-weight:800;margin-bottom:8px">🎯 Schrittziel anpassen</div>
+    <div style="font-size:.74rem;color:var(--text-2);margin-bottom:14px;line-height:1.5">
+      Wählen Sie ein Ziel das Sie herausfordert, aber erreichbar ist.<br>
+      Empfehlung 65+: 3.000–5.000 Schritte täglich.
+    </div>
+    <div class="goal-slider-val" id="goalSliderVal">5.000 Schritte</div>
+    <input type="range" class="goal-slider" min="1000" max="10000" step="500" value="5000"
+      id="goalSlider" oninput="updateGoalSlider(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:.62rem;color:var(--text-3);margin-bottom:16px">
+      <span>1.000 (Einstieg)</span><span>5.000 (Empfohlen)</span><span>10.000 (Aktiv)</span>
+    </div>
+    <div id="goalHint" style="background:var(--sage-lt);border-radius:var(--r-sm);padding:10px 12px;font-size:.72rem;color:var(--moss);margin-bottom:14px;border-left:3px solid var(--sage)">
+      5.000 Schritte: Empfohlen für 65+ · entspricht ca. 3,7 km · 50 Min. Gehen
+    </div>
+    <button class="btn-p" style="margin:0" onclick="saveGoal()">Ziel speichern</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════════════════
+const KEY = 'c4y_motion_v1';
+function loadDB() {
+  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : initDB(); }
+  catch(e) { return initDB(); }
+}
+function initDB() {
+  return {
+    user: { name: 'Hildegard', goal: 5000 },
+    today: {
+      date: todayStr(), steps: 0, dist: 0, dur: 0,
+      meals: [], water: 0, breaks: 0, outdoor: 0,
+      qol: null, hourly: new Array(24).fill(0)
+    },
+    week: [3200, 4820, 2100, 5500, 4100, 6200, 0],
+    barriers: [],
+    notifLog: [],
+    streaks: [true, true, false, true, true, true, false]
+  };
+}
+function saveDB() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+let DB = loadDB();
+// Reset today if new day
+if (DB.today.date !== todayStr()) {
+  const oldSteps = DB.today.steps;
+  DB.week.shift(); DB.week.push(oldSteps);
+  DB.today = { date: todayStr(), steps: 0, dist: 0, dur: 0,
+    meals: DB.today.meals || [], water: 0, breaks: 0, outdoor: 0,
+    qol: null, hourly: new Array(24).fill(0) };
+  saveDB();
+}
+
+// ══════════════════════════════════════════════════
+// MOTION / STEP TRACKING
+// ══════════════════════════════════════════════════
+let isTracking = false;
+let trackingMode = 'idle'; // idle, real, simulated
+let stepInterval = null;
+let lastAcc = 0;
+let stepCooldown = false;
+let sessionStart = null;
+let sessionSteps = 0;
+let sittingTimer = 0; // minutes since last movement
+let sittingInterval = null;
+let notifCount = 3;
+
+function requestMotionPermission() {
+  document.getElementById('permCard').style.display = 'none';
+  document.getElementById('mainCounter').style.display = 'block';
+  // iOS 13+ requires explicit permission
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(state => {
+        if (state === 'granted') { startRealTracking(); showToast('📱 Sensor-Tracking aktiv!'); }
+        else { startSimulated(); showToast('Simulations-Modus aktiv'); }
+      })
+      .catch(() => startSimulated());
+  } else if (window.DeviceMotionEvent) {
+    startRealTracking();
+  } else {
+    startSimulated();
+    showToast('📱 Simulations-Modus (kein Sensor)');
+  }
+}
+
+function skipPermission() {
+  document.getElementById('permCard').style.display = 'none';
+  document.getElementById('mainCounter').style.display = 'block';
+  startSimulated();
+}
+
+function startTracking() {
+  if (trackingMode === 'idle') {
+    // First time: check permissions
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission()
+        .then(state => { state === 'granted' ? startRealTracking() : startSimulated(); })
+        .catch(() => startSimulated());
+    } else if (window.DeviceMotionEvent) {
+      startRealTracking();
+    } else {
+      startSimulated();
+    }
+  } else {
+    resumeTracking();
+  }
+  sessionStart = Date.now();
+  document.getElementById('btnStart').classList.add('disabled');
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').classList.remove('disabled');
+  document.getElementById('btnPause').disabled = false;
+  document.getElementById('btnStart').textContent = '✓ Tracking läuft';
+  updateTrackingUI(true);
+  startSittingTimer();
+}
+
+function startRealTracking() {
+  isTracking = true;
+  trackingMode = 'real';
+  const THRESHOLD = 11;
+  window.addEventListener('devicemotion', e => {
+    if (!isTracking) return;
+    const a = e.accelerationIncludingGravity;
+    if (!a) return;
+    const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
+    if (Math.abs(mag - lastAcc) > THRESHOLD && !stepCooldown) {
+      addSteps(1);
+      stepCooldown = true;
+      setTimeout(() => stepCooldown = false, 380);
+      sittingTimer = 0; // reset sitting counter
+    }
+    lastAcc = mag;
+  });
+}
+
+function startSimulated() {
+  isTracking = true;
+  trackingMode = 'simulated';
+  stepInterval = setInterval(() => {
+    if (!isTracking) return;
+    // Realistic burst simulation
+    if (Math.random() > 0.5) {
+      const n = Math.floor(Math.random() * 4) + 1;
+      addSteps(n);
+      sittingTimer = 0;
+    }
+  }, 700);
+}
+
+function addSteps(n) {
+  DB.today.steps += n;
+  sessionSteps += n;
+  DB.today.dist = +(DB.today.steps * 0.00074).toFixed(2);
+  const elapsed = sessionStart ? (Date.now() - sessionStart) / 60000 : 0;
+  DB.today.dur = Math.round(elapsed);
+  DB.today.speed = elapsed > 0 ? +(DB.today.dist / (elapsed / 60)).toFixed(1) : 0;
+  // Hourly tracking
+  const hour = new Date().getHours();
+  DB.today.hourly[hour] = (DB.today.hourly[hour] || 0) + n;
+  // Update week last day
+  DB.week[6] = DB.today.steps;
+  updateCounterDisplay();
+  checkGoalNotification();
+  // Save every 50 steps
+  if (DB.today.steps % 50 === 0) saveDB();
+}
+
+function pauseTracking() {
+  isTracking = false;
+  document.getElementById('btnStart').classList.remove('disabled');
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStart').textContent = '▶ Fortsetzen';
+  document.getElementById('btnPause').classList.add('disabled');
+  document.getElementById('btnPause').disabled = true;
+  updateTrackingUI(false);
+}
+
+function resumeTracking() {
+  isTracking = true;
+  if (trackingMode === 'simulated') startSimulated();
+}
+
+function updateTrackingUI(active) {
+  const dot = document.getElementById('trackingDot');
+  const lbl = document.getElementById('trackingLabel');
+  dot.className = 'tracking-dot' + (active ? '' : ' off');
+  lbl.textContent = active ? (trackingMode==='real'?'Sensor aktiv':'Simulation') : 'Pausiert';
+}
+
+// ── Display Updates ──
+function updateCounterDisplay() {
+  const s = DB.today.steps;
+  const g = DB.user.goal;
+  const pct = Math.min(100, Math.round((s/g)*100));
+  const circ = 175.9;
+  const offset = circ - (circ * pct/100);
+
+  // Numbers
+  const el = document.getElementById('stepNum');
+  if (el) el.textContent = s.toLocaleString('de-DE');
+  const rp = document.getElementById('ringPct');
+  if (rp) rp.textContent = pct + '%';
+  const rd = document.getElementById('ringDash');
+  if (rd) rd.setAttribute('stroke-dashoffset', offset);
+  const mf = document.getElementById('mainBarFill');
+  if (mf) mf.style.width = pct + '%';
+  const bc = document.getElementById('barCur');
+  if (bc) bc.textContent = s.toLocaleString('de-DE');
+  const md = document.getElementById('metDist');
+  if (md) md.textContent = DB.today.dist.toFixed(1).replace('.',',');
+  const mu = document.getElementById('metDur');
+  if (mu) mu.textContent = DB.today.dur;
+  const ms = document.getElementById('metSpeed');
+  if (ms) ms.textContent = (DB.today.speed||0).toFixed(1).replace('.',',');
+
+  // Goals screen
+  const gc = document.getElementById('goalStepsCur');
+  if (gc) gc.textContent = s.toLocaleString('de-DE');
+  const gb = document.getElementById('goalStepsBar');
+  if (gb) gb.style.width = pct + '%';
+  const gs = document.getElementById('goalStepsStatus');
+  if (gs) gs.textContent = pct>=100?'✅ Ziel erreicht!':pct>=75?'🔥 Fast da!':'In Bearbeitung';
+  if (gs) gs.style.color = pct>=100?'var(--moss-lt)':pct>=75?'var(--amber)':'var(--text-3)';
+
+  updateHourlyChart();
+  updateAlertBanner();
+}
+
+// ── Hourly chart ──
+function updateHourlyChart() {
+  const c = document.getElementById('hourlyBars');
+  if (!c) return;
+  c.innerHTML = '';
+  const curHour = new Date().getHours();
+  const max = Math.max(...DB.today.hourly, 100);
+  DB.today.hourly.forEach((v, i) => {
+    const pct = Math.max(4, (v/max)*100);
+    const isNow = i === curHour;
+    const cls = isNow ? 'hb now' : v > 200 ? 'hb active' : v > 50 ? 'hb warn' : 'hb low';
+    const d = document.createElement('div');
+    d.className = cls;
+    d.style.cssText = `flex:1;height:${pct}%;border-radius:2px 2px 0 0;min-height:3px`;
+    d.title = `${String(i).padStart(2,'0')}:00 · ${v} Schritte`;
+    c.appendChild(d);
+  });
+}
+
+// ── Week chart ──
+function buildWeekChart() {
+  const c = document.getElementById('weekBars');
+  if (!c) return;
+  c.innerHTML = '';
+  const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const goal = DB.user.goal;
+  const max = Math.max(...DB.week, goal) * 1.1;
+  const today = new Date().getDay();
+  const todayIdx = today === 0 ? 6 : today - 1;
+  let total = 0, cnt = 0;
+  DB.week.forEach((v, i) => {
+    const isToday = i === todayIdx;
+    const pct = Math.max(5, (v/max)*100);
+    const cls = v >= goal ? 'wb-bar goal' : v >= goal*0.6 ? 'wb-bar partial' : 'wb-bar low';
+    const d = document.createElement('div');
+    d.className = 'wb-col';
+    d.innerHTML = `<div class="${cls}${isToday?' today':''}" style="height:${pct}%;flex:1;width:100%" title="${v.toLocaleString('de-DE')} Schritte"></div>
+      <div class="wb-day${isToday?' today':''}">${days[i]}</div>`;
+    c.appendChild(d);
+    if (v > 0) { total += v; cnt++; }
+  });
+  const avg = cnt > 0 ? Math.round(total/cnt) : 0;
+  const wa = document.getElementById('weekAvg');
+  if (wa) wa.textContent = avg.toLocaleString('de-DE');
+}
+
+// ── Alert banner ──
+function updateAlertBanner() {
+  const el = document.getElementById('alertBanner');
+  if (!el) return;
+  const s = DB.today.steps, g = DB.user.goal, h = new Date().getHours();
+  let html = '';
+  if (s >= g) {
+    html = `<div class="alert-banner goal"><div class="ab-ico">🎉</div><div><div class="ab-title">Tagesziel erreicht!</div><div class="ab-sub">Sie haben ${s.toLocaleString('de-DE')} Schritte gemacht – fantastisch!</div></div></div>`;
+  } else if (h >= 15 && s < g * 0.6) {
+    const missing = (g - s).toLocaleString('de-DE');
+    html = `<div class="alert-banner nudge"><div class="ab-ico">⏰</div><div><div class="ab-title">Noch ${missing} Schritte bis zum Ziel</div><div class="ab-sub">Es ist ${h}:00 Uhr – ein 15-Minuten-Spaziergang würde reichen!</div><div class="ab-action" onclick="showToast('Erinnerung in 30 Min. gesetzt ✓')">Erinnere mich in 30 Min. →</div></div></div>`;
+  } else if (sittingTimer >= 55) {
+    html = `<div class="alert-banner nudge"><div class="ab-ico">⏳</div><div><div class="ab-title">Aufstehen & Bewegen!</div><div class="ab-sub">Sie sitzen seit ${sittingTimer} Min. – kurz aufstehen schützt Ihr Herz.</div><div class="ab-action" onclick="resetSittingTimer()">Erledigt ✓</div></div></div>`;
+  }
+  el.style.display = html ? 'block' : 'none';
+  el.innerHTML = html;
+}
+
+// ── Sitting timer ──
+function startSittingTimer() {
+  clearInterval(sittingInterval);
+  sittingInterval = setInterval(() => {
+    sittingTimer++;
+    if (sittingTimer === 55 || sittingTimer === 90) {
+      triggerSittingNotification();
+      updateAlertBanner();
+    }
+  }, 60000); // every real minute
+}
+function resetSittingTimer() {
+  sittingTimer = 0;
+  DB.today.breaks = (DB.today.breaks || 0) + 1;
+  updateAlertBanner();
+  updateBreaksDisplay();
+  showToast('✅ Pause gezählt! Weiter so.');
+  addNotifLog('⏰ Bewegungspause', 'Gut gemacht – eine weitere Sitzpause eingelegt!', 'success');
+}
+
+// ── Goal notifications ──
+function checkGoalNotification() {
+  const s = DB.today.steps, g = DB.user.goal;
+  const pct = s/g;
+  if (pct >= 0.75 && pct < 0.76) triggerNotification('🔥 75% Ziel erreicht!', `Noch ${(g-s).toLocaleString('de-DE')} Schritte – Sie schaffen das!`, '75pct');
+  if (pct >= 1.0 && s - 1 < g) { triggerNotification('🎉 Tagesziel erreicht!', `${s.toLocaleString('de-DE')} Schritte – fantastisch! Ihr Körper dankt es Ihnen.`, 'goal100'); addNotifLog('🎉 Ziel erreicht!', `${s.toLocaleString('de-DE')} Schritte heute – das ist großartig!`, 'success'); }
+}
+
+let firedNotifs = {};
+function triggerNotification(title, body, key) {
+  if (firedNotifs[key]) return;
+  firedNotifs[key] = true;
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('care4you – ' + title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>' });
+  }
+  showToast(title);
+  addNotifLog(title, body, 'info');
+}
+function triggerSittingNotification() {
+  triggerNotification('⏳ Aufstehen!', 'Sie sitzen seit über 55 Min. – kurz aufstehen ist wichtig für Ihr Herz.', 'sit'+sittingTimer);
+}
+
+// ── Notification log ──
+function addNotifLog(title, msg, type) {
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  DB.notifLog.unshift({ title, msg, type, time });
+  if (DB.notifLog.length > 20) DB.notifLog.pop();
+  renderNotifLog();
+}
+
+function renderNotifLog() {
+  const el = document.getElementById('notifLog');
+  if (!el) return;
+  const items = DB.notifLog.length ? DB.notifLog : [
+    { title: '☀️ Guten Morgen!', msg: 'Schönen Tag – starten Sie mit einem kurzen Spaziergang.', time: '08:30', type:'info' },
+    { title: '💧 Trinkerinnerung', msg: 'Bitte trinken Sie ein Glas Wasser!', time: '10:00', type:'info' },
+    { title: '🚶 Bewegungsimpuls', msg: 'Heute ist ein guter Tag für 20 Minuten draußen.', time: '11:30', type:'info' },
+  ];
+  el.innerHTML = items.map(n => `
+    <div class="notif-item">
+      <div class="ni-dot ${n.type==='success'?'unread':'read'}"></div>
+      <div class="ni-body">
+        <div class="ni-title">${n.title}</div>
+        <div class="ni-msg">${n.msg}</div>
+        <div class="ni-time">${n.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// GOALS SCREEN
+// ══════════════════════════════════════════════════
+function updateBreaksDisplay() {
+  const el = document.getElementById('breaksDone'); if (el) el.textContent = DB.today.breaks || 0;
+  const bar = document.getElementById('breaksBar'); if (bar) bar.style.width = Math.min(100, ((DB.today.breaks||0)/8)*100) + '%';
+}
+
+function buildStreak() {
+  const el = document.getElementById('stepStreak'); if (!el) return;
+  const labels = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  el.innerHTML = DB.streaks.map((done,i) => {
+    const isToday = i === (new Date().getDay()||7)-1;
+    const cls = isToday ? 'streak-dot today' : done ? 'streak-dot done' : 'streak-dot miss';
+    return `<div class="${cls}" title="${labels[i]}">${done||isToday?'✓':'×'}</div>`;
+  }).join('') + '<div class="streak-dot future" title="Morgen">›</div>';
+}
+
+// Coaching messages
+const coachingMsgs = [
+  { msg: '7.500 Schritte täglich reduzieren das Demenzrisiko um bis zu 51%. Sie schaffen das!', action: 'Jetzt 10 Min. spazieren gehen' },
+  { msg: 'Schon 3.800 Schritte täglich verbessern messbar Herzgesundheit und Lebenserwartung.', action: 'Kurzer Gang ums Haus – 5 Min. reichen' },
+  { msg: 'Gehen im Freien steigert die Stimmung stärker als drinnen. Tageslicht ist Medizin.', action: 'Briefkasten holen als Ausrede für Luft' },
+  { msg: 'Langsames, regelmäßiges Gehen ist effektiver als seltenere, intensive Einheiten.', action: 'Heute 3× 10 Min. statt einmal 30 Min.' },
+  { msg: 'Musik beim Gehen erhöht die Schrittgeschwindigkeit um bis zu 15% – automatisch!', action: 'Lieblingsmusik anmachen und losgehen' },
+];
+let cIdx = 0;
+function nextCoaching() {
+  cIdx = (cIdx + 1) % coachingMsgs.length;
+  document.getElementById('coachingMsg').textContent = coachingMsgs[cIdx].msg;
+  document.getElementById('coachingAction').textContent = coachingMsgs[cIdx].action;
+}
+
+// Goal slider
+function openGoalEdit() {
+  document.getElementById('goalModal').classList.add('open');
+  document.getElementById('goalSlider').value = DB.user.goal;
+  updateGoalSlider(DB.user.goal);
+}
+function updateGoalSlider(v) {
+  v = parseInt(v);
+  document.getElementById('goalSliderVal').textContent = v.toLocaleString('de-DE') + ' Schritte';
+  const pct = ((v-1000)/(10000-1000))*100;
+  document.getElementById('goalSlider').style.background = `linear-gradient(to right,var(--moss-lt) 0%,var(--moss-lt) ${pct}%,var(--sand-dk) ${pct}%,var(--sand-dk) 100%)`;
+  const hints = v <= 2000 ? 'Sehr leicht – gut zum Start nach längerer Pause' :
+    v <= 3000 ? 'Leicht – guter Einstieg · ca. 2,2 km · 30 Min. Gehen' :
+    v <= 5000 ? '5.000 Schritte: Empfohlen für 65+ · ca. 3,7 km · 50 Min. Gehen' :
+    v <= 7000 ? 'Aktiv – entspricht ca. 5 km · 70 Min. Gehen' :
+    'Sehr aktiv – für gut mobile Personen';
+  document.getElementById('goalHint').textContent = hints;
+  document.getElementById('goalEditDisplay').textContent = v.toLocaleString('de-DE') + ' Schritte';
+  const gd = document.getElementById('goalStepsGoal'); if (gd) gd.textContent = v.toLocaleString('de-DE');
+  const bg = document.getElementById('barGoal'); if (bg) bg.textContent = v.toLocaleString('de-DE');
+  const sgd = document.getElementById('stepGoalDisp'); if (sgd) sgd.textContent = v.toLocaleString('de-DE');
+}
+function saveGoal() {
+  DB.user.goal = parseInt(document.getElementById('goalSlider').value);
+  DB.week[6] = DB.today.steps;
+  saveDB();
+  document.getElementById('goalModal').classList.remove('open');
+  updateCounterDisplay();
+  showToast('✅ Ziel gespeichert: ' + DB.user.goal.toLocaleString('de-DE') + ' Schritte');
+}
+
+// ══════════════════════════════════════════════════
+// NUTRITION & QOL
+// ══════════════════════════════════════════════════
+function setQoL(val, btn) {
+  document.querySelectorAll('.qcs-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  DB.today.qol = val;
+  saveDB();
+  const msgs = ['', 'Das tut mir leid. Bitte ruhen Sie sich aus und sprechen Sie mit Momo.', 'Manchmal sind solche Tage schwer. Kleine Bewegung kann helfen.', 'Ein guter Tag! Weiter so.', 'Wunderbar! Nutzen Sie die gute Energie für einen Spaziergang.', '🌟 Fantastisch! Das ist der beste Ausgangspunkt für Bewegung!'];
+  showToast(msgs[val] || '✓ Check-in gespeichert');
+  addNotifLog('💛 Befindlichkeit', `QoL-Score ${val}/5 erfasst · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr`, 'info');
+}
+
+// Nutrition tips
+const nutrTips = [
+  { title: 'Proteinreich frühstücken', body: 'Ältere Menschen brauchen mehr Protein – mind. 1,2g/kg täglich. Eier, Quark, Hülsenfrüchte, Fisch. Protein erhält Muskelmasse und schützt vor Stürzen.', science: '📖 ESPEN Leitlinien 2023' },
+  { title: 'Bunt essen = Antioxidantien', body: 'Farbige Gemüse und Früchte liefern Antioxidantien die Entzündungen reduzieren. Mindestens 5 Farben täglich schützen Gehirn und Gefäße.', science: '📖 Mediterranean Diet Study, NEJM 2018' },
+  { title: 'Omega-3 für das Gehirn', body: 'Fetter Fisch (Lachs, Makrele, Hering) 2× wöchentlich liefert Omega-3-Fettsäuren. Diese schützen Nervenzellen und können das Demenzrisiko senken.', science: '📖 Alzheimer\'s & Dementia Journal 2021' },
+  { title: 'Kalzium & Vitamin D', body: 'Milchprodukte, grünes Gemüse und Tageslicht sind entscheidend für Knochengesundheit. 1000mg Kalzium + 800 IE Vitamin D täglich – sprechen Sie Ihren Arzt an.', science: '📖 DGE Empfehlungen 2023' },
+  { title: '5 kleine Mahlzeiten', body: 'Kleine, häufige Mahlzeiten sind für Ältere besser als 3 große. Sie entlasten Magen, stabilisieren Blutzucker und verhindern Energietiefs.', science: '📖 Geriatric Nutrition Guidelines, WHO' },
+];
+let nutrTipIdx = 0;
+function nextNutrTip() {
+  nutrTipIdx = (nutrTipIdx + 1) % nutrTips.length;
+  const t = nutrTips[nutrTipIdx];
+  document.getElementById('ntTitle').textContent = t.title;
+  document.getElementById('ntBody').textContent = t.body;
+  document.getElementById('ntScience').textContent = t.science;
+}
+// Auto-rotate tips every 30s
+setInterval(nextNutrTip, 30000);
+
+// Meals
+function addMeal() {
+  const meals = ['Frühstück', 'Mittagessen', 'Abendessen', 'Zwischenmahlzeit', 'Obst / Snack', 'Suppe', 'Salat'];
+  const meal = prompt('Mahlzeit: ' + meals.join(', '));
+  if (!meal) return;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  DB.today.meals.push({ name: meal, time, quality: 'Gut' });
+  saveDB();
+  renderMeals();
+  showToast('🍽️ ' + meal + ' gespeichert');
+}
+function renderMeals() {
+  const el = document.getElementById('mealList'); if (!el) return;
+  const icons = { 'Frühstück':'☕','Mittagessen':'🍛','Abendessen':'🍽️','Zwischenmahlzeit':'🍵','Obst':'🍎','Suppe':'🍲','Salat':'🥗' };
+  const meals = DB.today.meals.length ? DB.today.meals : [{ name:'Frühstück', time:'08:15', quality:'Gut' }, { name:'Zwischenmahlzeit', time:'10:30', quality:'Gut' }];
+  el.innerHTML = meals.map(m => `
+    <div class="meal-item">
+      <span class="mi-ico">${Object.entries(icons).find(([k])=>m.name.includes(k))?.[1]||'🍽️'}</span>
+      <div class="mi-text"><div class="mi-name">${m.name}</div><div class="mi-time">${m.time}</div></div>
+      <span class="mi-quality mi-g">${m.quality}</span>
+    </div>`).join('');
+}
+
+// Hydration
+function buildWaterDrops() {
+  const el = document.getElementById('waterDrops'); if (!el) return;
+  el.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const d = document.createElement('div');
+    d.className = 'drop' + (i < Math.floor(DB.today.water/200) ? ' filled' : '');
+    d.title = (i+1)*200 + ' ml';
+    d.onclick = () => { DB.today.water = (i+1)*200; updateHydration(); saveDB(); };
+    el.appendChild(d);
+  }
+  document.getElementById('hydAmount').textContent = DB.today.water;
+}
+function addWater() {
+  DB.today.water = Math.min(2000, DB.today.water + 200);
+  updateHydration();
+  saveDB();
+  if (DB.today.water >= 1500) showToast('💧 Super! Tagesziel Flüssigkeit erreicht!');
+  else showToast('💧 +200ml · ' + DB.today.water + 'ml heute');
+}
+function updateHydration() {
+  document.getElementById('hydAmount').textContent = DB.today.water;
+  buildWaterDrops();
+}
+
+// Barriers
+const defaultBarriers = [
+  { title: 'Kein Haltegriff im Bad', action: 'Installation beantragen – Sturzprävention', status: 'open', ico: '🛁' },
+  { title: 'Schmerzen beim Gehen', action: 'Orthopäden aufsuchen · Physiotherapie prüfen', status: 'progress', ico: '🦵' },
+  { title: 'Einsamkeit / kein Gehpartner', action: 'Momo täglich nutzen · Besuchsdienst anfragen', status: 'open', ico: '👥' },
+];
+function renderBarriers() {
+  const el = document.getElementById('barrierList'); if (!el) return;
+  const barriers = DB.barriers.length ? DB.barriers : defaultBarriers;
+  const cls = { open:'bi-open', progress:'bi-progress', done:'bi-done' };
+  const statusText = { open:'🔴 Offen – Handlung erforderlich', progress:'🟡 In Bearbeitung', done:'🟢 Behoben' };
+  el.innerHTML = barriers.map((b,i) => `
+    <div class="barrier-item ${cls[b.status]}" onclick="toggleBarrier(${i})">
+      <div class="bi-ico">${b.ico}</div>
+      <div class="bi-text">
+        <div class="bi-title">${b.title}</div>
+        <div class="bi-action">→ ${b.action}</div>
+        <div class="bi-status" style="color:${b.status==='open'?'var(--danger)':b.status==='progress'?'var(--amber)':'var(--moss)'}">${statusText[b.status]}</div>
+      </div>
+    </div>`).join('');
+}
+function toggleBarrier(idx) {
+  const barriers = DB.barriers.length ? DB.barriers : defaultBarriers;
+  const b = barriers[idx];
+  b.status = b.status === 'open' ? 'progress' : b.status === 'progress' ? 'done' : 'open';
+  if (DB.barriers.length === 0) DB.barriers = defaultBarriers;
+  DB.barriers[idx] = b;
+  saveDB();
+  renderBarriers();
+  showToast(b.status === 'done' ? '✅ Hürde als behoben markiert!' : '📝 Status aktualisiert');
+}
+function addBarrier() {
+  const title = prompt('Hürde beschreiben:');
+  if (!title) return;
+  if (DB.barriers.length === 0) DB.barriers = [...defaultBarriers];
+  DB.barriers.unshift({ title, action: 'Noch keine Maßnahme geplant', status: 'open', ico: '🚧' });
+  saveDB();
+  renderBarriers();
+  showToast('🚧 Hürde erfasst');
+}
+
+// Notifications
+function requestNotifPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        document.getElementById('notifPermCard').style.display = 'none';
+        showToast('🔔 Benachrichtigungen aktiviert!');
+        addNotifLog('🔔 Benachrichtigungen', 'Aktiv – Sie werden jetzt erinnert!', 'success');
+        scheduleNotifications();
+      }
+    });
+  }
+}
+function scheduleNotifications() {
+  // Schedule notifications throughout day
+  const reminders = [
+    { delay: 2*60*60*1000, title: '💧 Trinkerinnerung', body: 'Haben Sie heute genug getrunken?' },
+    { delay: 4*60*60*1000, title: '🚶 Bewegungsimpuls', body: 'Zeit für einen kurzen Spaziergang!' },
+  ];
+  reminders.forEach(r => {
+    setTimeout(() => {
+      if (Notification.permission === 'granted') new Notification('care4you – ' + r.title, { body: r.body });
+    }, r.delay);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  const map = { 'sc-track':'nb-track','sc-goals':'nb-goals','sc-nutr':'nb-nutr','sc-notif':'nb-notif' };
+  if (map[id]) document.getElementById(map[id]).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'sc-goals') { buildStreak(); updateBreaksDisplay(); }
+  if (id === 'sc-nutr') { renderMeals(); buildWaterDrops(); renderBarriers(); }
+  if (id === 'sc-notif') { renderNotifLog(); checkNotifPerm(); }
+}
+
+function closeModal(e) { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); }
+function checkNotifPerm() {
+  const el = document.getElementById('notifPermCard');
+  if (el) el.style.display = (!('Notification' in window) || Notification.permission === 'granted') ? 'none' : 'block';
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+let tT;
+function showToast(m) {
+  const el = document.getElementById('toast'); el.textContent = m; el.classList.add('show');
+  clearTimeout(tT); tT = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function init() {
+  // Greeting
+  const h = new Date().getHours();
+  const el = document.getElementById('htGreeting');
+  if (el) el.textContent = h<12?'Guten Morgen ☀️':h<17?'Guten Tag 🌤':'Guten Abend 🌙';
+  const ne = document.getElementById('htName');
+  if (ne) ne.textContent = DB.user.name;
+
+  // Goal display
+  const gd = document.getElementById('goalSliderVal'); if (gd) updateGoalSlider(DB.user.goal);
+  const bgLabel = document.getElementById('barGoal'); if (bgLabel) bgLabel.textContent = DB.user.goal.toLocaleString('de-DE');
+  const sgd = document.getElementById('stepGoalDisp'); if (sgd) sgd.textContent = DB.user.goal.toLocaleString('de-DE');
+  const ged = document.getElementById('goalEditDisplay'); if (ged) ged.textContent = DB.user.goal.toLocaleString('de-DE') + ' Schritte';
+  const gsg = document.getElementById('goalStepsGoal'); if (gsg) gsg.textContent = DB.user.goal.toLocaleString('de-DE');
+
+  // Check perm card
+  const hasData = DB.today.steps > 0;
+  const pc = document.getElementById('permCard');
+  const mc = document.getElementById('mainCounter');
+  if (pc && mc) {
+    pc.style.display = hasData ? 'none' : 'block';
+    mc.style.display = hasData ? 'block' : 'none';
+  }
+
+  // QoL time
+  const qt = document.getElementById('qolTime');
+  if (qt) qt.textContent = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}) + ' Uhr';
+
+  updateCounterDisplay();
+  buildWeekChart();
+  renderNotifLog();
+  checkNotifPerm();
+
+  // If already had steps (page reload), show counter
+  if (DB.today.steps > 0 && mc) { pc.style.display='none'; mc.style.display='block'; }
+
+  // Auto-start simulation if no real sensor available (for demo)
+  if (!window.DeviceMotionEvent) {
+    updateTrackingUI(false);
+  }
+
+  // Periodic UI refresh
+  setInterval(() => {
+    updateCounterDisplay();
+    buildWeekChart();
+  }, 5000);
+
+  // Demo: pre-populate some steps for visual richness
+  if (DB.today.steps === 0) {
+    const demoSteps = [0,0,0,0,0,0,120,340,280,420,380,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    demoSteps.forEach((v,i) => DB.today.hourly[i] = v);
+    DB.today.steps = demoSteps.reduce((a,b)=>a+b,0);
+    DB.week[6] = DB.today.steps;
+    DB.today.dist = +(DB.today.steps * 0.00074).toFixed(2);
+    saveDB();
+    updateCounterDisplay();
+  }
+}
+
+init();
+</script>
+</body>
+</html>

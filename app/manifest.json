@@ -1,0 +1,42 @@
+{
+  "name": "care4you – Ihre digitale Pflegebegleitung",
+  "short_name": "care4you",
+  "description": "Die digitale Pflegekraft in Ihrer Hosentasche. Begleitet Sie täglich, erkennt früh wenn Hilfe nötig ist.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EAF1F4",
+  "theme_color": "#10284A",
+  "lang": "de",
+  "dir": "ltr",
+  "categories": ["health", "medical", "lifestyle"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%2310284A'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='%237FD0C0'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%2310284A'/%3E%3Ctext x='256' y='350' font-size='270' text-anchor='middle' fill='%237FD0C0'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mit Momo sprechen",
+      "short_name": "Momo",
+      "description": "Direkt ins Gespräch",
+      "url": "./momo.html"
+    },
+    {
+      "name": "Bewegung",
+      "short_name": "Schritte",
+      "description": "Bewegungs-Tracking öffnen",
+      "url": "./motion.html"
+    }
+  ]
+}

@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>care4you – Meine Situation | care4youapp.com</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:wght@400;700&display=swap');
+
+:root {
+  --moss:#10284A; --moss-mid:#163558; --moss-lt:#0F7A66;
+  --sage:#7FD0C0; --sage-lt:#D2EFE9;
+  --sand:#EAF1F4; --sand-dk:#D4E2E8;
+  --terra:#D4622A; --amber:#D49818; --amber-bg:#FEF4DC;
+  --sky:#3A7BC8; --sky-lt:#D0E4F8;
+  --text:#0E1F33; --text-2:#3A4F63; --text-3:#7C909E;
+  --white:#FFFFFF; --danger:#B03020;
+  --r:14px; --r-sm:9px;
+  --shadow:0 2px 14px rgba(16,40,74,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--sand);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--moss);color:#fff;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tb-logo{font-size:.9rem;font-weight:800}.tb-logo em{color:var(--sage);font-style:normal}
+.tb-right{display:flex;align-items:center;gap:8px;font-size:.72rem;opacity:.85}
+.tb-user{background:rgba(255,255,255,.15);border-radius:20px;padding:3px 10px;font-weight:600}
+
+/* ── SCREENS ── */
+.screen{display:none;padding-bottom:90px;min-height:100vh}
+.screen.active{display:block;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--sand-dk);display:flex;z-index:100;box-shadow:0 -3px 14px rgba(16,40,74,.07)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 3px 7px;gap:2px;border:none;background:none;cursor:pointer;color:var(--text-3);font-size:.56rem;font-weight:500;font-family:inherit;transition:color .18s;position:relative}
+.nb .ni{font-size:1.2rem;line-height:1}.nb.active{color:var(--moss)}.nb.active .nl{font-weight:700}
+.nb-badge{position:absolute;top:5px;right:calc(50% - 20px);background:var(--terra);color:#fff;font-size:.48rem;font-weight:800;border-radius:8px;padding:1px 4px;line-height:1.4}
+
+/* ── SHARED ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);margin:0 14px 10px;overflow:hidden;border:1px solid var(--sand-dk)}
+.card-inner{padding:14px}
+.section-lbl{font-size:.65rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 5px}
+.tag{display:inline-flex;align-items:center;border-radius:20px;font-size:.6rem;font-weight:700;padding:2px 8px}
+.tg{background:#E4F0D8;color:var(--moss)}.ta{background:var(--amber-bg);color:var(--amber)}.tr{background:#FDECEA;color:var(--danger)}.tb{background:var(--sky-lt);color:var(--sky)}
+.btn-p{background:var(--moss);color:#fff;border:none;border-radius:var(--r-sm);padding:12px;font-size:.82rem;font-weight:700;font-family:inherit;cursor:pointer;width:calc(100% - 28px);margin:0 14px;transition:all .15s}
+.btn-p:active{background:var(--moss-mid);transform:scale(.98)}
+.btn-s{background:#fff;color:var(--moss);border:1.5px solid var(--sage);border-radius:var(--r-sm);padding:11px;font-size:.8rem;font-weight:700;font-family:inherit;cursor:pointer;width:calc(100% - 28px);margin:0 14px;transition:all .15s}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-60px);background:var(--text);color:#fff;border-radius:24px;padding:9px 18px;font-size:.74rem;font-weight:600;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;pointer-events:none;max-width:320px;text-align:center;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══════════════════════════════════════════
+   DASHBOARD (Screen 1)
+══════════════════════════════════════════ */
+.dash-hero{background:linear-gradient(150deg,var(--moss),var(--moss-mid));padding:20px 18px 28px;color:#fff;position:relative;overflow:hidden}
+.dash-hero::after{content:'';position:absolute;bottom:-16px;left:0;right:0;height:32px;background:var(--sand);border-radius:16px 16px 0 0}
+.dh-greeting{font-size:.72rem;opacity:.7;margin-bottom:2px}
+.dh-name{font-size:1.2rem;font-weight:800}
+.dh-sub{font-size:.65rem;opacity:.55;margin-top:2px}
+
+/* Overall Score Ring */
+.score-ring-wrap{display:flex;align-items:center;gap:16px;background:#fff;margin:18px 14px 10px;border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.score-ring{width:80px;height:80px;flex-shrink:0;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .sr-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sr-val{font-size:1.25rem;font-weight:800;color:var(--moss);line-height:1}
+.sr-sub{font-size:.5rem;font-weight:600;color:var(--text-3);margin-top:1px}
+.score-details{flex:1}
+.sd-title{font-size:.82rem;font-weight:800;margin-bottom:8px;color:var(--text)}
+.sd-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.sd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sd-lbl{font-size:.68rem;color:var(--text-2);flex:1}
+.sd-val{font-size:.68rem;font-weight:700;color:var(--text)}
+
+/* Assessment Cards Grid */
+.assess-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 14px 12px}
+.ag-card{background:#fff;border-radius:var(--r-sm);box-shadow:var(--shadow);padding:13px;cursor:pointer;border:1.5px solid var(--sand-dk);transition:all .18s;position:relative;text-align:left;font-family:inherit}
+.ag-card:active{transform:scale(.97)}
+.ag-card.done{border-color:var(--sage)}
+.ag-card.urgent{border-color:var(--terra);background:#FFF8F5}
+.ag-ico{font-size:1.4rem;margin-bottom:7px;display:block}
+.ag-name{font-size:.75rem;font-weight:700;color:var(--text);display:block;margin-bottom:3px}
+.ag-score{font-size:.65rem;color:var(--text-3)}
+.ag-badge{position:absolute;top:8px;right:8px}
+.ag-progress{height:3px;background:var(--sand-dk);border-radius:2px;margin-top:8px;overflow:hidden}
+.ag-progress-fill{height:100%;border-radius:2px;background:var(--moss-lt)}
+
+/* PRO Banner */
+.pro-banner{margin:0 14px 10px;background:linear-gradient(135deg,var(--sky),#2A5FA8);border-radius:var(--r);padding:14px 16px;color:#fff;display:flex;gap:12px;align-items:center;cursor:pointer}
+.pro-ico{font-size:1.5rem;flex-shrink:0}
+.pro-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
+.pro-sub{font-size:.68rem;opacity:.8;line-height:1.4}
+
+/* Trend chart mini */
+.trend-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);box-shadow:var(--shadow);padding:14px;border:1px solid var(--sand-dk)}
+.tc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tc-title{font-size:.78rem;font-weight:800}
+.tc-period{font-size:.62rem;color:var(--text-3)}
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:50px}
+.mc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%}
+.mc-bar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:height .5s ease}
+.mc-lbl{font-size:.55rem;color:var(--text-3)}
+
+/* ══════════════════════════════════════════
+   ASSESSMENT ENGINE (Screen 2)
+══════════════════════════════════════════ */
+.assess-header{background:var(--moss);padding:16px 18px 18px;color:#fff;position:sticky;top:56px;z-index:50}
+.ah-back{background:none;border:none;color:rgba(255,255,255,.65);font-size:.78rem;cursor:pointer;font-family:inherit;padding:0 0 8px;display:flex;align-items:center;gap:4px}
+.ah-title{font-size:1.05rem;font-weight:800}
+.ah-sub{font-size:.7rem;opacity:.7;margin-top:2px}
+.ah-prog{height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin-top:10px;overflow:hidden}
+.ah-prog-fill{height:100%;background:var(--sage);border-radius:2px;transition:width .5s ease}
+.ah-prog-row{display:flex;justify-content:space-between;font-size:.58rem;opacity:.55;margin-top:3px}
+.assess-body{padding:14px}
+
+/* Question Styles */
+.qs-block{display:none}.qs-block.active{display:block;animation:fadeUp .22s ease}
+.qs-context{font-size:.62rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.qs-title{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:4px;line-height:1.3}
+.qs-why{font-size:.73rem;color:var(--text-2);margin-bottom:14px;line-height:1.5;background:var(--sage-lt);border-radius:var(--r-sm);padding:9px 12px;border-left:3px solid var(--sage)}
+.qs-q{font-size:.86rem;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.4;margin-top:14px}
+
+/* Visual Scale (NRS-style) */
+.visual-scale{display:flex;gap:5px;margin-bottom:16px}
+.vs-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 3px;background:#fff;border:2px solid var(--sand-dk);border-radius:var(--r-sm);cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:var(--shadow)}
+.vs-num{font-size:1rem;font-weight:800;color:var(--text-2)}
+.vs-face{font-size:1.1rem;line-height:1}
+.vs-btn.sel{border-color:var(--moss);background:var(--sage-lt)}.vs-btn.sel .vs-num{color:var(--moss)}
+
+/* Big Choice Buttons */
+.big-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.big-opt{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:2px solid var(--sand-dk);border-radius:var(--r);cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:all .15s;box-shadow:var(--shadow)}
+.big-opt:active,.big-opt.sel{border-color:var(--moss);background:var(--sage-lt)}
+.bo-ico{font-size:1.5rem;flex-shrink:0}
+.bo-main{flex:1}
+.bo-text{font-size:.84rem;font-weight:700;color:var(--text)}
+.bo-sub{font-size:.68rem;color:var(--text-3);margin-top:2px}
+.bo-val{font-size:.72rem;font-weight:800;color:var(--text-3);flex-shrink:0;background:var(--sand-dk);border-radius:6px;padding:2px 7px}
+.big-opt.sel .bo-val{background:var(--sage);color:var(--moss)}
+.bo-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--sand-dk);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.big-opt.sel .bo-dot{background:var(--moss);border-color:var(--moss);color:#fff;font-size:.7rem}
+
+/* Frequency Scale */
+.freq-scale{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.freq-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;background:#fff;border:2px solid var(--sand-dk);border-radius:var(--r-sm);cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:var(--shadow)}
+.freq-btn .fb-ico{font-size:1.2rem}
+.freq-btn .fb-lbl{font-size:.6rem;font-weight:600;color:var(--text-3);text-align:center;line-height:1.2}
+.freq-btn.sel{border-color:var(--moss);background:var(--sage-lt)}.freq-btn.sel .fb-lbl{color:var(--moss)}
+
+/* Yes/No big */
+.yn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.yn-btn{display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px;background:#fff;border:2px solid var(--sand-dk);border-radius:var(--r);cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:var(--shadow)}
+.yn-ico{font-size:1.8rem}
+.yn-lbl{font-size:.82rem;font-weight:700;color:var(--text)}
+.yn-btn.sel-yes{border-color:var(--moss);background:var(--sage-lt)}
+.yn-btn.sel-no{border-color:var(--terra);background:#FFF0EC}
+
+/* Slider */
+.range-wrap{margin-bottom:16px}
+.range-track{position:relative;padding:10px 0}
+.range-input{width:100%;-webkit-appearance:none;height:8px;border-radius:4px;background:linear-gradient(to right,var(--moss-lt) 0%,var(--moss-lt) 50%,var(--sand-dk) 50%,var(--sand-dk) 100%);outline:none;cursor:pointer}
+.range-input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--moss);box-shadow:0 2px 8px rgba(16,40,74,.4);cursor:pointer}
+.range-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--text-3);margin-top:5px}
+.range-val-display{text-align:center;font-size:1.8rem;font-weight:800;color:var(--moss);margin-bottom:8px}
+
+/* Nav row */
+.nav-row{display:flex;gap:9px;margin-top:8px}
+.btn-back-sm{flex:0 0 auto;background:#fff;border:1.5px solid var(--sand-dk);color:var(--text-2);padding:11px 14px;border-radius:var(--r);font-size:.78rem;font-weight:600;font-family:inherit;cursor:pointer}
+.btn-next-sm{flex:1;background:var(--moss);color:#fff;border:none;padding:12px;border-radius:var(--r);font-size:.84rem;font-weight:700;font-family:inherit;cursor:pointer}
+.btn-next-sm:active{background:var(--moss-mid)}
+.skip-link{text-align:center;font-size:.68rem;color:var(--text-3);cursor:pointer;padding:6px;display:block;margin-top:4px}
+.skip-link:hover{color:var(--moss)}
+
+/* Result card */
+.result-block{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:10px;border:1px solid var(--sand-dk)}
+.rb-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rb-ico{font-size:1.6rem}
+.rb-title{font-size:.9rem;font-weight:800}
+.rb-score-pill{margin-left:auto;border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:800}
+.rb-interpretation{font-size:.76rem;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+.rb-recs{display:flex;flex-direction:column;gap:5px}
+.rb-rec{font-size:.72rem;color:var(--text);display:flex;gap:6px;align-items:flex-start}
+.rb-rec::before{content:'→';color:var(--moss-lt);font-weight:800;flex-shrink:0}
+.rb-pro-note{background:var(--sky-lt);border-radius:var(--r-sm);padding:9px 11px;font-size:.68rem;color:var(--sky);margin-top:9px;border-left:3px solid var(--sky)}
+
+/* ══════════════════════════════════════════
+   PRO (Patient Reported Outcomes) Screen 3
+══════════════════════════════════════════ */
+.pro-header{background:linear-gradient(135deg,var(--sky),#2A5FA8);padding:20px 18px;color:#fff}
+.ph-title{font-size:1.1rem;font-weight:800}
+.ph-sub{font-size:.72rem;opacity:.78;margin-top:3px}
+.ph-desc{font-size:.78rem;opacity:.85;margin-top:10px;line-height:1.55;background:rgba(255,255,255,.1);border-radius:var(--r-sm);padding:10px}
+.pro-domain{background:#fff;margin:0 14px 10px;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--sand-dk)}
+.pd-head{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sand-dk)}
+.pd-ico{font-size:1.2rem}
+.pd-title{font-size:.82rem;font-weight:700;flex:1;color:var(--text)}
+.pd-score{font-size:.78rem;font-weight:800}
+.pd-body{padding:12px 14px}
+.pd-question{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
+.likert-row{display:flex;gap:5px}
+.likert-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 3px;background:var(--sand);border:2px solid transparent;border-radius:var(--r-sm);cursor:pointer;font-family:inherit;transition:all .15s}
+.lk-face{font-size:1.2rem}
+.lk-lbl{font-size:.55rem;font-weight:600;color:var(--text-3);text-align:center;line-height:1.2}
+.likert-btn.sel{border-color:var(--sky);background:var(--sky-lt)}.likert-btn.sel .lk-lbl{color:var(--sky)}
+.pd-pro-note{font-size:.68rem;color:var(--text-3);margin-top:6px;font-style:italic}
+
+/* ══════════════════════════════════════════
+   REPORTS (Screen 4)
+══════════════════════════════════════════ */
+.report-header{background:var(--moss);padding:18px 18px;color:#fff}
+.rh-title{font-size:1.1rem;font-weight:800}
+.rh-sub{font-size:.72rem;opacity:.75;margin-top:3px}
+.report-card{background:#fff;margin:0 14px 10px;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--sand-dk)}
+.rc-head{padding:12px 14px;border-bottom:1px solid var(--sand-dk);display:flex;justify-content:space-between;align-items:center}
+.rc-title{font-size:.82rem;font-weight:700;color:var(--text)}
+.rc-date{font-size:.62rem;color:var(--text-3)}
+.rc-body{padding:12px 14px}
+.rc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--sand-dk)}
+.rc-row:last-child{border-bottom:none}
+.rc-lbl{font-size:.74rem;color:var(--text-2)}
+.rc-val{font-size:.74rem;font-weight:700;color:var(--text)}
+.rc-bar-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--sand-dk)}
+.rc-bar-row:last-child{border-bottom:none}
+.rc-bar-lbl{font-size:.68rem;color:var(--text-2);width:110px;flex-shrink:0}
+.rc-bar-track{flex:1;height:6px;background:var(--sand-dk);border-radius:3px;overflow:hidden}
+.rc-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.rc-bar-val{font-size:.65rem;font-weight:700;color:var(--text);width:28px;text-align:right}
+.export-row{display:flex;gap:9px;margin:0 14px 10px}
+.exp-btn{flex:1;background:#fff;border:1.5px solid var(--sand-dk);color:var(--text);border-radius:var(--r-sm);padding:11px;font-size:.76rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.exp-btn:hover{border-color:var(--moss);color:var(--moss)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,36,14,.5);z-index:200;align-items:flex-end;max-width:430px;margin:0 auto}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--sand);border-radius:22px 22px 0 0;padding:18px;width:100%;max-height:88vh;overflow-y:auto}
+.modal-handle{width:38px;height:4px;background:var(--sand-dk);border-radius:2px;margin:0 auto 14px}
+.modal-title{font-size:.97rem;font-weight:800;margin-bottom:14px}
+.modal-close{float:right;background:var(--sand-dk);border:none;border-radius:50%;width:27px;height:27px;font-size:.72rem;cursor:pointer}
+
+/* ══════════════════════════════════════════════
+   SPIDER WEB / RADAR CHART
+══════════════════════════════════════════════ */
+.spider-wrap {
+  background: #fff;
+  margin: 0 14px 10px;
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 18px 14px 14px;
+  border: 1px solid var(--sand-dk);
+}
+.spider-title {
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.spider-sub {
+  font-size: .66rem;
+  color: var(--text-3);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.spider-canvas-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.spider-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 12px;
+}
+.sl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .65rem;
+  color: var(--text-2);
+}
+.sl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.spider-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.spider-action-btn {
+  flex: 1;
+  background: var(--sand);
+  border: 1.5px solid var(--sand-dk);
+  border-radius: var(--r-sm);
+  padding: 8px;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+  text-align: center;
+}
+.spider-action-btn:hover { border-color: var(--moss); color: var(--moss); }
+.spider-action-btn.active { background: var(--sage-lt); border-color: var(--moss); color: var(--moss); }
+
+/* Potential bars under spider */
+.potential-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 12px;
+}
+.pot-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pot-name {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pot-nums {
+  font-size: .65rem;
+  color: var(--text-3);
+}
+.pot-track {
+  height: 12px;
+  background: var(--sand-dk);
+  border-radius: 6px;
+  overflow: visible;
+  position: relative;
+}
+.pot-current {
+  height: 100%;
+  border-radius: 6px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width .8s ease;
+  z-index: 2;
+}
+.pot-potential {
+  height: 100%;
+  border-radius: 6px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: .25;
+  transition: width .8s ease;
+  z-index: 1;
+}
+.pot-delta {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .58rem;
+  font-weight: 800;
+  color: var(--moss);
+  z-index: 3;
+}
+
+/* ══════════════════════════════════════════════
+   DOCTOR REPORT (Screen 5)
+══════════════════════════════════════════════ */
+#sc-doctor {
+  background: #fff;
+}
+.doc-report-header {
+  background: linear-gradient(135deg, #10284A, #235A86);
+  padding: 20px 20px 24px;
+  color: #fff;
+}
+.drh-logo {
+  font-size: .75rem;
+  font-weight: 800;
+  opacity: .7;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drh-logo a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .65rem; }
+.drh-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.drh-sub {
+  font-size: .72rem;
+  opacity: .75;
+  line-height: 1.5;
+}
+.drh-meta {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.drh-meta-item {
+  font-size: .66rem;
+  opacity: .75;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Report sections */
+.rep-section {
+  margin: 0 0 0;
+  border-bottom: 1px solid var(--sand-dk);
+}
+.rep-section-head {
+  padding: 14px 18px;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.rsh-ico { font-size: 1.1rem; }
+.rsh-title { font-size: .84rem; font-weight: 800; flex: 1; color: var(--text); }
+.rsh-arrow { color: var(--text-3); font-size: .75rem; transition: transform .2s; }
+.rep-section-head.open .rsh-arrow { transform: rotate(180deg); }
+.rep-section-body { display: none; padding: 14px 18px 16px; }
+.rep-section-body.open { display: block; }
+
+/* Status blocks */
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.status-block {
+  border-radius: var(--r-sm);
+  padding: 11px 12px;
+  border: 1.5px solid;
+}
+.sb-label { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; opacity: .7; }
+.sb-val { font-size: 1.1rem; font-weight: 800; margin-bottom: 2px; }
+.sb-sub { font-size: .65rem; opacity: .7; line-height: 1.35; }
+.sb-good { background: #E8F5E0; border-color: #7FD0C0; color: #10284A; }
+.sb-warn { background: #FEF4DC; border-color: #D49818; color: #7A5010; }
+.sb-risk { background: #FDECEA; border-color: #B03020; color: #6A1510; }
+.sb-neutral { background: #EDF3FF; border-color: #3A7BC8; color: #10284A; }
+
+/* Risk cards */
+.risk-card-rep {
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-left: 4px solid;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.rc-good { background: #E8F5E0; border-color: #7FD0C0; }
+.rc-warn { background: #FEF4DC; border-color: #D49818; }
+.rc-risk { background: #FDECEA; border-color: #B03020; }
+.rcr-ico { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.rcr-title { font-size: .78rem; font-weight: 700; margin-bottom: 2px; }
+.rcr-sub { font-size: .7rem; opacity: .75; line-height: 1.4; }
+
+/* Potential section */
+.pot-rep-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--sand-dk);
+}
+.pot-rep-item:last-child { border-bottom: none; }
+.pri-ico { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; margin-top: 1px; }
+.pri-text { flex: 1; }
+.pri-title { font-size: .78rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.pri-desc { font-size: .68rem; color: var(--text-2); line-height: 1.45; }
+.pri-impact { font-size: .63rem; font-weight: 700; color: var(--moss); margin-top: 3px; }
+
+/* Spider in report */
+.report-spider-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+/* Print / share actions */
+.doc-actions {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--sand);
+}
+.doc-act-btn {
+  width: 100%;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: .84rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  transition: all .15s;
+}
+.doc-act-btn:active { transform: scale(.98); }
+.dab-primary { background: var(--moss); color: #fff; }
+.dab-secondary { background: #fff; color: var(--moss); border: 1.5px solid var(--sage); }
+.dab-sky { background: #3A7BC8; color: #fff; }
+
+.doc-disclaimer {
+  padding: 12px 18px 30px;
+  font-size: .65rem;
+  color: var(--text-3);
+  line-height: 1.6;
+  background: #fff;
+  text-align: center;
+}
+
+/* ── PRINT STYLES for Doctor Report ── */
+@media print {
+  .bnav, .topbar, .doc-actions, .modal-overlay,
+  #sc-dash, #sc-assess, #sc-pro, #sc-report { display:none!important; }
+  #sc-doctor { display:block!important; background:#fff; }
+  .rep-section-body { display:block!important; }
+  .doc-report-header { background: #10284A!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .status-block { border:1px solid #ccc!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .risk-card-rep { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body { max-width:100%; }
+  .doc-disclaimer { padding-bottom:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
+  <div class="tb-logo"><a href="https://care4youapp.com" style="color:#fff;text-decoration:none">care4<em>you</em></a></div>
+  <div class="tb-right">
+    <div class="tb-user" id="topbarUser">Hildegard M.</div>
+    <span>🔒</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 1: DASHBOARD
+═══════════════════════════════════════════════ -->
+<div class="screen active" id="sc-dash">
+
+  <div class="dash-hero">
+    <div class="dh-greeting" id="dashGreeting">Guten Morgen</div>
+    <div class="dh-name" id="dashName">Hildegard</div>
+    <div class="dh-sub" id="dashSub">Ihr Gesundheitsprofil · <span id="dashDate"></span></div>
+  </div>
+
+  <!-- Overall Score -->
+  <div class="score-ring-wrap" id="overallScoreWrap">
+    <div class="score-ring">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="32" fill="none" stroke="#D4E2E8" stroke-width="8"/>
+        <circle cx="40" cy="40" r="32" fill="none" stroke="#7FD0C0" stroke-width="8"
+          stroke-dasharray="201.1" id="overallRingDash" stroke-dashoffset="80" stroke-linecap="round"/>
+      </svg>
+      <div class="sr-label"><div class="sr-val" id="overallScore">–</div><div class="sr-sub">Gesamt</div></div>
+    </div>
+    <div class="score-details">
+      <div class="sd-title">Ihr Wohlbefindens-Profil</div>
+      <div class="sd-row"><div class="sd-dot" style="background:var(--moss-lt)"></div><div class="sd-lbl">Barthel-Index</div><div class="sd-val" id="d-barthel">–</div></div>
+      <div class="sd-row"><div class="sd-dot" style="background:var(--amber)"></div><div class="sd-lbl">Kognition</div><div class="sd-val" id="d-kogn">–</div></div>
+      <div class="sd-row"><div class="sd-dot" style="background:var(--sky)"></div><div class="sd-lbl">Lebensqualität</div><div class="sd-val" id="d-qol">–</div></div>
+      <div class="sd-row"><div class="sd-dot" style="background:var(--danger)"></div><div class="sd-lbl">Sturzrisiko</div><div class="sd-val" id="d-falls">–</div></div>
+    </div>
+  </div>
+
+  <!-- PRO Banner -->
+  <div class="pro-banner" onclick="switchScreen('sc-pro')">
+    <div class="pro-ico">📊</div>
+    <div>
+      <div class="pro-title">Wie fühlen Sie sich wirklich?</div>
+      <div class="pro-sub">Ihre eigene Einschätzung zählt – genauso viel wie jede Messung.</div>
+    </div>
+  </div>
+
+  <!-- Assessment Grid -->
+  <div class="section-lbl">Was möchten Sie über sich erfahren?</div>
+  <div class="assess-grid" id="assessGrid">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- 30-Tage Trend -->
+  <div class="section-lbl">30-Tage Verlauf</div>
+  <div class="trend-card">
+    <div class="tc-header">
+      <div class="tc-title">Wohlbefindens-Score</div>
+      <div class="tc-period">letzte 8 Wochen</div>
+    </div>
+    <div class="mini-chart" id="trendChart"></div>
+  </div>
+
+  <!-- Spider Web Module -->
+  <div id="spiderModule" style="display:none">
+    <div class="section-lbl">🕸️ Gesundheits-Radar</div>
+    <div class="spider-wrap">
+      <div class="spider-title">Ihr Gesundheits-Radar</div>
+      <div class="spider-sub">Aktueller Zustand vs. erreichbares Potenzial · klicken zum Wechseln</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="spider-action-btn active" id="sab-both" onclick="setSpiderMode('both')">Beide</button>
+        <button class="spider-action-btn" id="sab-current" onclick="setSpiderMode('current')">Aktuell</button>
+        <button class="spider-action-btn" id="sab-potential" onclick="setSpiderMode('potential')">Potenzial</button>
+      </div>
+      <div class="spider-canvas-wrap">
+        <canvas id="spiderCanvas" width="280" height="280"></canvas>
+      </div>
+      <div class="spider-legend">
+        <div class="sl-item"><div class="sl-dot" style="background:rgba(16,40,74,.75)"></div>Aktueller Zustand</div>
+        <div class="sl-item"><div class="sl-dot" style="background:rgba(40,168,144,.35);border:2px dashed #28A890;box-sizing:border-box"></div>Erreichbares Potenzial</div>
+        <div class="sl-item"><div class="sl-dot" style="background:#D49818"></div>Handlungsbedarf</div>
+        <div class="sl-item"><div class="sl-dot" style="background:#B03020"></div>Risiko</div>
+      </div>
+    </div>
+    <div class="section-lbl">📈 Verbesserungspotenzial</div>
+    <div class="spider-wrap" style="margin-top:0">
+      <div class="spider-title">Was ist in 90 Tagen erreichbar?</div>
+      <div class="spider-sub">Realistisches Potenzial durch gezielte Maßnahmen</div>
+      <div class="potential-list" id="potentialList"></div>
+    </div>
+  </div>
+
+  <!-- Last report -->
+  <div class="section-lbl">Letzter Bericht</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="font-size:.76rem;color:var(--text-2);margin-bottom:8px">Bericht vom <span id="lastReportDate">–</span></div>
+      <div id="dashAlerts">
+        <div style="font-size:.8rem;color:var(--text-3);text-align:center;padding:10px">Noch keine Assessments abgeschlossen.</div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-p" onclick="switchScreen('sc-report')" style="width:100%;margin:0">Vollständigen Bericht anzeigen →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 2: ASSESSMENT ENGINE
+═══════════════════════════════════════════════ -->
+<div class="screen" id="sc-assess">
+
+  <div class="assess-header">
+    <button class="ah-back" id="assessBackBtn" onclick="backFromAssess()">← Alle Assessments</button>
+    <div class="ah-title" id="assessTitle">Assessment</div>
+    <div class="ah-sub" id="assessSub">Fragen 1 von ?</div>
+    <div class="ah-prog"><div class="ah-prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="ah-prog-row"><span id="progLabel">Schritt 1</span><span id="progPct">0%</span></div>
+  </div>
+
+  <div class="assess-body" id="assessBody">
+    <!-- Dynamically filled -->
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 3: PATIENT REPORTED OUTCOMES
+═══════════════════════════════════════════════ -->
+<div class="screen" id="sc-pro">
+
+  <div class="pro-header">
+    <button style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.78rem;cursor:pointer;font-family:inherit;padding:0 0 10px;display:flex;align-items:center;gap:4px" onclick="switchScreen('sc-dash')">← Zurück</button>
+    <div class="ph-title">Wie geht es Ihnen wirklich?</div>
+    <div class="ph-sub">Ihre eigene Stimme · Ihre Sicht zählt</div>
+    <div class="ph-desc">Diese Fragen erfassen, wie Sie sich selbst fühlen – nicht wie Tests oder Messungen es zeigen. Ihre Antworten sind genauso wichtig wie klinische Werte.</div>
+  </div>
+
+  <!-- EQ-5D-3L -->
+  <div class="section-lbl">EQ-5D-3L · Gesundheitszustand heute</div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">🚶</div><div class="pd-title">Beweglichkeit</div><div class="pd-score" id="pro-mob-score" style="color:var(--moss)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Wie würden Sie Ihre Beweglichkeit heute beschreiben?</div>
+      <div class="likert-row">
+        <button class="likert-btn" onclick="setPRO('mob',1,this)"><span class="lk-face">🧍</span><span class="lk-lbl">Keine<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('mob',2,this)"><span class="lk-face">🚶</span><span class="lk-lbl">Einige<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('mob',3,this)"><span class="lk-face">🛋️</span><span class="lk-lbl">Ans Bett<br>gebunden</span></button>
+      </div>
+      <div class="pd-pro-note">EQ-5D-3L Dimension 1 · WHO-validiertes Instrument</div>
+    </div>
+  </div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">👐</div><div class="pd-title">Selbstversorgung</div><div class="pd-score" id="pro-self-score" style="color:var(--moss)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Können Sie sich selbst waschen und anziehen?</div>
+      <div class="likert-row">
+        <button class="likert-btn" onclick="setPRO('self',1,this)"><span class="lk-face">✅</span><span class="lk-lbl">Keine<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('self',2,this)"><span class="lk-face">🤝</span><span class="lk-lbl">Einige<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('self',3,this)"><span class="lk-face">❌</span><span class="lk-lbl">Nicht<br>möglich</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">🏠</div><div class="pd-title">Alltägliche Tätigkeiten</div><div class="pd-score" id="pro-act-score" style="color:var(--moss)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Können Sie Ihren üblichen Tätigkeiten nachgehen (Arbeit, Haushalt, Hobbys, Familie)?</div>
+      <div class="likert-row">
+        <button class="likert-btn" onclick="setPRO('act',1,this)"><span class="lk-face">🌟</span><span class="lk-lbl">Keine<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('act',2,this)"><span class="lk-face">😐</span><span class="lk-lbl">Einige<br>Probleme</span></button>
+        <button class="likert-btn" onclick="setPRO('act',3,this)"><span class="lk-face">😔</span><span class="lk-lbl">Nicht<br>möglich</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">😣</div><div class="pd-title">Schmerz / Beschwerden</div><div class="pd-score" id="pro-pain-score" style="color:var(--moss)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Haben Sie Schmerzen oder andere Beschwerden?</div>
+      <div class="likert-row">
+        <button class="likert-btn" onclick="setPRO('pain',1,this)"><span class="lk-face">😊</span><span class="lk-lbl">Keine</span></button>
+        <button class="likert-btn" onclick="setPRO('pain',2,this)"><span class="lk-face">😕</span><span class="lk-lbl">Mäßige</span></button>
+        <button class="likert-btn" onclick="setPRO('pain',3,this)"><span class="lk-face">😣</span><span class="lk-lbl">Extreme</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">😰</div><div class="pd-title">Angst / Niedergeschlagenheit</div><div class="pd-score" id="pro-anx-score" style="color:var(--moss)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Sind Sie ängstlich oder niedergeschlagen?</div>
+      <div class="likert-row">
+        <button class="likert-btn" onclick="setPRO('anx',1,this)"><span class="lk-face">😌</span><span class="lk-lbl">Nicht</span></button>
+        <button class="likert-btn" onclick="setPRO('anx',2,this)"><span class="lk-face">😟</span><span class="lk-lbl">Mäßig</span></button>
+        <button class="likert-btn" onclick="setPRO('anx',3,this)"><span class="lk-face">😰</span><span class="lk-lbl">Extrem</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VAS -->
+  <div class="section-lbl">Gesundheits-Thermometer (VAS)</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="font-size:.82rem;font-weight:700;margin-bottom:6px">Wie gut ist Ihr heutiger Gesundheitszustand?</div>
+      <div style="font-size:.72rem;color:var(--text-2);margin-bottom:12px">0 = schlechtester denkbarer · 100 = bester denkbarer Gesundheitszustand</div>
+      <div class="range-val-display" id="vasDisplay">50</div>
+      <div class="range-wrap">
+        <div class="range-track">
+          <input class="range-input" type="range" min="0" max="100" value="50" id="vasSlider" oninput="updateVAS(this.value)">
+        </div>
+        <div class="range-labels"><span>😞 0</span><span>😐 50</span><span>😄 100</span></div>
+      </div>
+      <button class="btn-p" style="margin:10px 0 0" onclick="saveVAS()">VAS speichern</button>
+    </div>
+  </div>
+
+  <!-- PROMIS Global Health -->
+  <div class="section-lbl">PROMIS Global-10 · Globale Gesundheit</div>
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">🌍</div><div class="pd-title">Allgemeine Gesundheit</div><div class="pd-score" id="pro-glob-score" style="color:var(--sky)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Im Allgemeinen würden Sie Ihren Gesundheitszustand beschreiben als …</div>
+      <div class="freq-scale">
+        <button class="freq-btn" onclick="setPRO('glob',5,this)"><span class="fb-ico">⭐⭐⭐⭐⭐</span><span class="fb-lbl">Aus-<br>gezeichnet</span></button>
+        <button class="freq-btn" onclick="setPRO('glob',4,this)"><span class="fb-ico">⭐⭐⭐⭐</span><span class="fb-lbl">Sehr<br>gut</span></button>
+        <button class="freq-btn" onclick="setPRO('glob',3,this)"><span class="fb-ico">⭐⭐⭐</span><span class="fb-lbl">Gut</span></button>
+        <button class="freq-btn" onclick="setPRO('glob',2,this)"><span class="fb-ico">⭐⭐</span><span class="fb-lbl">Weniger<br>gut</span></button>
+        <button class="freq-btn" onclick="setPRO('glob',1,this)"><span class="fb-ico">⭐</span><span class="fb-lbl">Schlecht</span></button>
+      </div>
+      <div class="pd-pro-note">PROMIS® Global Health v1.2 · NIH-validiert</div>
+    </div>
+  </div>
+
+  <div class="pro-domain">
+    <div class="pd-head"><div class="pd-ico">🧠</div><div class="pd-title">Geistige Gesundheit</div><div class="pd-score" id="pro-ment-score" style="color:var(--sky)">–</div></div>
+    <div class="pd-body">
+      <div class="pd-question">Wie würden Sie Ihre geistige Gesundheit einschließlich Ihrer Stimmung und Fähigkeit zu denken, generell beurteilen?</div>
+      <div class="freq-scale">
+        <button class="freq-btn" onclick="setPRO('ment',5,this)"><span class="fb-ico">🌟</span><span class="fb-lbl">Ausge-<br>zeichnet</span></button>
+        <button class="freq-btn" onclick="setPRO('ment',4,this)"><span class="fb-ico">😊</span><span class="fb-lbl">Sehr<br>gut</span></button>
+        <button class="freq-btn" onclick="setPRO('ment',3,this)"><span class="fb-ico">😐</span><span class="fb-lbl">Gut</span></button>
+        <button class="freq-btn" onclick="setPRO('ment',2,this)"><span class="fb-ico">😕</span><span class="fb-lbl">Weniger<br>gut</span></button>
+        <button class="freq-btn" onclick="setPRO('ment',1,this)"><span class="fb-ico">😔</span><span class="fb-lbl">Schlecht</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0 14px 10px;padding:11px 13px;background:var(--sky-lt);border-radius:var(--r-sm);font-size:.7rem;color:var(--sky);line-height:1.5;border:1px solid rgba(58,123,200,.2)">
+    <strong>Warum das wichtig ist:</strong> Wie Sie sich selbst fühlen, ist genauso wichtig wie jeder gemessene Wert. Ihre eigene Einschätzung hilft uns und Ihrem Arzt, Sie wirklich zu verstehen. <span style="opacity:.7">(Fachlich: EQ-5D, PROMIS – international anerkannte Instrumente.)</span>
+  </div>
+
+  <button class="btn-p" onclick="savePRO();switchScreen('sc-dash')">PRO-Profil speichern →</button>
+  <div style="height:14px"></div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 4: REPORT
+═══════════════════════════════════════════════ -->
+<div class="screen" id="sc-report">
+
+  <div class="report-header">
+    <button style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.78rem;cursor:pointer;font-family:inherit;padding:0 0 9px;display:flex;align-items:center;gap:4px" onclick="switchScreen('sc-dash')">← Zurück</button>
+    <div class="rh-title">Ihr Gesundheitsbericht</div>
+    <div class="rh-sub" id="reportDate">Noch keine Assessments abgeschlossen</div>
+  </div>
+
+  <div class="section-lbl">Zusammenfassung</div>
+  <div class="report-card">
+    <div class="rc-head"><div class="rc-title">Gesamtprofil</div><div class="rc-date" id="rc-date">–</div></div>
+    <div class="rc-body" id="summaryBody">
+      <div style="font-size:.78rem;color:var(--text-3);text-align:center;padding:10px">Bitte zunächst Assessments abschließen.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Dimensionen</div>
+  <div class="report-card">
+    <div class="rc-head"><div class="rc-title">Alle Bereiche</div></div>
+    <div class="rc-body" id="dimensionsBody">
+      <div style="font-size:.78rem;color:var(--text-3);text-align:center;padding:10px">Noch keine Daten vorhanden.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Ihre eigene Einschätzung</div>
+  <div class="report-card">
+    <div class="rc-head"><div class="rc-title">PRO-Profil (EQ-5D + PROMIS)</div></div>
+    <div class="rc-body" id="proReportBody">
+      <div style="font-size:.78rem;color:var(--text-3);text-align:center;padding:10px">PRO noch nicht ausgefüllt.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Empfehlungen</div>
+  <div class="report-card" id="recsCard">
+    <div class="rc-head"><div class="rc-title">Nächste Schritte</div></div>
+    <div class="rc-body" id="recsBody">
+      <div style="font-size:.78rem;color:var(--text-3);text-align:center;padding:10px">Nach Assessment verfügbar.</div>
+    </div>
+  </div>
+
+  <div class="export-row">
+    <button class="exp-btn" onclick="exportPDF()">📄 PDF für Arzt</button>
+    <button class="exp-btn" onclick="exportData()">📊 Daten exportieren</button>
+    <button class="exp-btn" onclick="shareReport()">📤 Teilen</button>
+  </div>
+  <div style="margin:0 14px 12px;font-size:.66rem;color:var(--text-3);text-align:center;line-height:1.5">
+    Daten werden lokal auf Ihrem Gerät gespeichert · Ende-zu-Ende verschlüsselt<br>
+    care4you ist kein Medizinprodukt · Hilfe zur Selbsthilfe
+  </div>
+
+</div>
+
+
+
+<!-- ══════════════════════════════════════════════
+     DOCTOR REPORT (Screen 5)
+══════════════════════════════════════════════ -->
+<div class="screen" id="sc-doctor">
+
+  <div class="doc-report-header">
+    <div class="drh-logo">
+      <span>care4<span style="color:#7FD0C0">you</span> · Arztbericht</span>
+      <a href="https://care4youapp.com">care4youapp.com</a>
+    </div>
+    <div class="drh-title">Pflegebericht für medizinische Versorger</div>
+    <div class="drh-sub">Dieser Bericht wurde auf Basis standardisierter Pflegeassessments erstellt und dient als Grundlage für das Versorgungsgespräch.</div>
+    <div class="drh-meta">
+      <div class="drh-meta-item">👤 <span id="drPatient">Hildegard Meier, 83 J.</span></div>
+      <div class="drh-meta-item">📅 <span id="drDate">–</span></div>
+      <div class="drh-meta-item">🏥 care4youapp.com</div>
+    </div>
+  </div>
+
+  <!-- 1. Übersicht -->
+  <div class="rep-section">
+    <div class="rep-section-head open" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">📊</span>
+      <span class="rsh-title">1. Gesamtübersicht & Radar</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body open">
+      <div class="status-grid" id="drStatusGrid"></div>
+      <div class="report-spider-wrap">
+        <canvas id="spiderCanvasDoc" width="260" height="260"></canvas>
+      </div>
+      <div style="font-size:.65rem;color:var(--text-3);text-align:center;margin-top:6px">
+        Grün = gut · Gelb = Handlungsbedarf · Rot = Risiko · Gestrichelt = Potenzial
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Probleme & Risiken -->
+  <div class="rep-section">
+    <div class="rep-section-head open" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">⚠️</span>
+      <span class="rsh-title">2. Aktuelle Probleme & Risiken</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body open" id="drRisksBody">
+      <div style="font-size:.76rem;color:var(--text-3)">Assessments ausfüllen um Risiken zu sehen.</div>
+    </div>
+  </div>
+
+  <!-- 3. Verbesserungspotenziale -->
+  <div class="rep-section">
+    <div class="rep-section-head" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">🎯</span>
+      <span class="rsh-title">3. Verbesserungspotenziale</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body" id="drPotBody">
+      <div style="font-size:.76rem;color:var(--text-3)">Nach Assessment-Abschluss verfügbar.</div>
+    </div>
+  </div>
+
+  <!-- 4. Detailbefunde -->
+  <div class="rep-section">
+    <div class="rep-section-head" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">📋</span>
+      <span class="rsh-title">4. Assessment-Detailbefunde</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body" id="drDetailBody">
+      <div style="font-size:.76rem;color:var(--text-3)">Noch keine Assessments abgeschlossen.</div>
+    </div>
+  </div>
+
+  <!-- 5. PRO -->
+  <div class="rep-section">
+    <div class="rep-section-head" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">💬</span>
+      <span class="rsh-title">5. Patientenperspektive (PRO)</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body" id="drProBody">
+      <div style="font-size:.76rem;color:var(--text-3)">PRO noch nicht ausgefüllt.</div>
+    </div>
+  </div>
+
+  <!-- 6. Empfehlungen -->
+  <div class="rep-section">
+    <div class="rep-section-head" onclick="toggleRepSection(this)">
+      <span class="rsh-ico">✅</span>
+      <span class="rsh-title">6. Empfohlene Maßnahmen</span>
+      <span class="rsh-arrow">▾</span>
+    </div>
+    <div class="rep-section-body" id="drRecsBody">
+      <div style="font-size:.76rem;color:var(--text-3)">Nach Assessment-Abschluss verfügbar.</div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="doc-actions">
+    <button class="doc-act-btn dab-primary" onclick="printDoctorReport()">
+      🖨️ Drucken / Als PDF speichern
+    </button>
+    <button class="doc-act-btn dab-sky" onclick="shareDoctorReport()">
+      📤 Sicher teilen (verschlüsselt)
+    </button>
+    <button class="doc-act-btn dab-secondary" onclick="downloadDocReport()">
+      📥 Als Datei herunterladen
+    </button>
+  </div>
+
+  <div class="doc-disclaimer">
+    Dieser Bericht wurde mit care4you (care4youapp.com) erstellt.<br>
+    care4you ist kein Medizinprodukt (kein CE-Klasse-I/II Gerät). Die Inhalte sind Selbsteinschätzungen und dienen der Gesprächsvorbereitung.<br>
+    Kein Ersatz für professionelle medizinische Diagnose oder Behandlung.<br>
+    Erstellt: <span id="drFooterDate">–</span>
+  </div>
+
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="bnav">
+  <button class="nb active" id="nb-dash" onclick="switchScreen('sc-dash')"><span class="ni">📊</span><span class="nl">Übersicht</span></button>
+  <button class="nb" id="nb-assess" onclick="switchScreen('sc-assess');openAssessMenu()"><span class="ni">📋</span><span class="nl">Assessments</span><span class="nb-badge" id="pendingBadge">12</span></button>
+  <button class="nb" id="nb-pro" onclick="switchScreen('sc-pro')"><span class="ni">💬</span><span class="nl">PRO</span></button>
+  <button class="nb" id="nb-report" onclick="switchScreen('sc-report');renderReport()"><span class="ni">📄</span><span class="nl">Bericht</span></button>
+  <button class="nb" id="nb-doctor" onclick="switchScreen('sc-doctor');renderDoctorReport()"><span class="ni">🏥</span><span class="nl">Arzt</span></button>
+</nav>
+
+<!-- Assessment Menu Modal -->
+<div class="modal-overlay" id="assessMenuModal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="modal-title">Was möchten Sie herausfinden?</div>
+      <button class="modal-close" onclick="document.getElementById('assessMenuModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="assessMenuList" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA STORE – localStorage with encryption-ready structure
+// ══════════════════════════════════════════════════
+const STORE_KEY = 'wc_data_v1';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : initStore();
+  } catch(e) { return initStore(); }
+}
+function saveData(data) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(e) { showToast('⚠️ Speichern fehlgeschlagen'); }
+}
+function initStore() {
+  return {
+    user: { name: 'Hildegard', surname: 'Meier', age: 83, created: new Date().toISOString() },
+    assessments: {},   // { barthel: { score:85, date:'...', answers:{} }, ... }
+    pro: {},           // EQ-5D + PROMIS values
+    history: [],       // Array of { date, overallScore }
+    version: 1
+  };
+}
+
+let DB = loadData();
+
+// ══════════════════════════════════════════════════
+// ASSESSMENT DEFINITIONS
+// ══════════════════════════════════════════════════
+const ASSESSMENTS = {
+  barthel: {
+    id: 'barthel', name: 'Barthel-Index', icon: '🦾',
+    tagline: 'Selbstversorgung & Mobilität',
+    source: 'Mahoney & Barthel 1965 · SGB XI Standard',
+    why: 'Der Barthel-Index ist das meistverwendete Instrument zur Erfassung von Alltagsaktivitäten. Er zeigt, wie selbstständig Sie Ihren Alltag bewältigen.',
+    maxScore: 100, urgency: 'high',
+    questions: [
+      { id:'b1', text:'Essen', icon:'🍽️', help:'Können Sie selbst essen, wenn das Essen vorbereitet ist?',
+        opts:[{l:'Vollständig selbstständig',v:10},{l:'Etwas Hilfe nötig',v:5},{l:'Vollständig abhängig',v:0}]},
+      { id:'b2', text:'Baden / Duschen', icon:'🛁', help:'Können Sie sich selbst waschen?',
+        opts:[{l:'Selbstständig',v:5},{l:'Brauche Hilfe',v:0}]},
+      { id:'b3', text:'Körperpflege', icon:'🪥', help:'Zähneputzen, Rasieren, Haare kämmen in letzten 24–48h',
+        opts:[{l:'Selbstständig',v:5},{l:'Brauche Hilfe',v:0}]},
+      { id:'b4', text:'An-/Auskleiden', icon:'👕', help:'Können Sie sich selbst an- und auskleiden?',
+        opts:[{l:'Selbstständig inkl. Schuhe',v:10},{l:'Hilfe nötig, aber 50% selbst',v:5},{l:'Vollständig abhängig',v:0}]},
+      { id:'b5', text:'Stuhlkontinenz', icon:'🚽', help:'Stuhlkontrolle der letzten Woche',
+        opts:[{l:'Kontinent',v:10},{l:'Gelegentlich unkontinent (max 1×/Woche)',v:5},{l:'Häufig unkontinent',v:0}]},
+      { id:'b6', text:'Urinkontinenz', icon:'💧', help:'Urinkontrolle der letzten Woche',
+        opts:[{l:'Kontinent oder katheterisiert',v:10},{l:'Gelegentlich unkontinent (max 1×/Tag)',v:5},{l:'Häufig unkontinent',v:0}]},
+      { id:'b7', text:'Toilettenbenutzung', icon:'🚾', help:'Können Sie die Toilette benutzen?',
+        opts:[{l:'Selbstständig',v:10},{l:'Hilfe nötig, aber einiges selbst',v:5},{l:'Vollständig abhängig',v:0}]},
+      { id:'b8', text:'Transfer (Bett→Stuhl)', icon:'🛏️', help:'Können Sie vom Bett auf einen Stuhl wechseln?',
+        opts:[{l:'Selbstständig',v:15},{l:'Geringe Hilfe/Aufsicht',v:10},{l:'Große Hilfe (kann sitzen)',v:5},{l:'Vollständig abhängig',v:0}]},
+      { id:'b9', text:'Mobilität', icon:'🚶', help:'Können Sie sich zu ebener Erde fortbewegen?',
+        opts:[{l:'Selbstständig ≥50m',v:15},{l:'Hilfe ≥50m',v:10},{l:'Rollstuhl selbstständig ≥50m',v:5},{l:'Immobil',v:0}]},
+      { id:'b10', text:'Treppensteigen', icon:'🪜', help:'Können Sie Treppen steigen?',
+        opts:[{l:'Selbstständig',v:10},{l:'Hilfe benötigt',v:5},{l:'Nicht möglich',v:0}]},
+    ],
+    interpret: (s) => s >= 80 ? {label:'Weitgehend selbstständig', color:'var(--moss-lt)', tag:'tg'} :
+                       s >= 60 ? {label:'Hilfebedarf (mittel)', color:'var(--amber)', tag:'ta'} :
+                       s >= 40 ? {label:'Erheblicher Hilfebedarf', color:'var(--terra)', tag:'tr'} :
+                                 {label:'Vollständig pflegeabhängig', color:'var(--danger)', tag:'tr'}
+  },
+
+  falls: {
+    id:'falls', name:'Sturz-Risiko', icon:'⚠️',
+    tagline:'STRATIFY · St. Thomas Hospital',
+    source:'Oliver et al. 1997 · Pflegestandard',
+    why:'Stürze sind die häufigste Ursache für pflegebedürftigkeitsbedingte Verletzungen. Frühzeitige Erkennung rettet Leben.',
+    maxScore: 5, urgency: 'high',
+    questions:[
+      {id:'f1',text:'Sturz in letzten 3 Monaten',icon:'🤕',help:'Hatten Sie in den letzten 3 Monaten einen Sturz?',
+        opts:[{l:'Nein, kein Sturz',v:0},{l:'Ja, ein Sturz',v:1},{l:'Ja, mehrere Stürze',v:1}]},
+      {id:'f2',text:'Unruhezustand',icon:'😵',help:'Sind Sie manchmal verwirrt oder unruhig?',
+        opts:[{l:'Nein',v:0},{l:'Gelegentlich',v:1},{l:'Häufig',v:1}]},
+      {id:'f3',text:'Sehbeeinträchtigung',icon:'👁️',help:'Beeinträchtigt Ihr Sehen Ihre Bewegungen?',
+        opts:[{l:'Nein',v:0},{l:'Ja, trotz Brille',v:1}]},
+      {id:'f4',text:'Häufiger Toilettengang',icon:'🚽',help:'Müssen Sie nachts oft aufstehen?',
+        opts:[{l:'Nein',v:0},{l:'Ja, 1–2×',v:1},{l:'Ja, häufiger',v:1}]},
+      {id:'f5',text:'Transfer / Mobilität',icon:'🦯',help:'Wie bewegen Sie sich fort?',
+        opts:[{l:'Selbstständig, sicher',v:0},{l:'Mit Hilfsmittel',v:1},{l:'Unsicher, benötige Hilfe',v:1}]},
+    ],
+    interpret: (s) => s === 0 ? {label:'Niedriges Sturzrisiko', color:'var(--moss-lt)', tag:'tg'} :
+                       s <= 2 ? {label:'Mittleres Sturzrisiko – Maßnahmen empfohlen', color:'var(--amber)', tag:'ta'} :
+                                {label:'Hohes Sturzrisiko – sofort handeln!', color:'var(--danger)', tag:'tr'}
+  },
+
+  mini_cog: {
+    id:'mini_cog', name:'Gedächtnis-Check', icon:'🧠',
+    tagline:'Mini-Cog · Kognition screenen',
+    source:'Borson et al. 2000 · MMSE-Kurzform',
+    why:'Kognitive Veränderungen zeigen sich oft Monate vor einer Diagnose. Früherkennung ermöglicht bessere Unterstützung.',
+    maxScore: 5, urgency: 'high',
+    questions:[
+      {id:'mc1',text:'Drei Wörter merken',icon:'💭',help:'Ich nenne Ihnen 3 Wörter: APFEL – TISCH – PENNY. Können Sie sie sich merken?',
+        opts:[{l:'Ja, ich habe sie'} ,{l:'Weiter'}]},
+      {id:'mc2',text:'Uhr zeichnen',icon:'🕐',help:'Stellen Sie sich vor, Sie zeichnen eine Uhr mit allen 12 Zahlen und den Zeigern auf 11:10 Uhr. Wie wäre das möglich?',
+        opts:[{l:'Vollständig korrekt',v:2},{l:'Kleinere Fehler',v:1},{l:'Größere Fehler / nicht möglich',v:0}]},
+      {id:'mc3',text:'Wörter erinnern',icon:'🧩',help:'Was waren die 3 Wörter, die ich Ihnen genannt habe?',
+        opts:[{l:'Alle 3 richtig',v:3},{l:'2 richtig',v:2},{l:'1 richtig',v:1},{l:'Keines',v:0}]},
+    ],
+    interpret: (s) => s >= 4 ? {label:'Keine kognitiven Auffälligkeiten', color:'var(--moss-lt)', tag:'tg'} :
+                       s >= 3 ? {label:'Geringe Auffälligkeiten – Beobachten', color:'var(--amber)', tag:'ta'} :
+                                {label:'Kognitive Beeinträchtigung möglich – Abklärung', color:'var(--danger)', tag:'tr'}
+  },
+
+  gds: {
+    id:'gds', name:'Stimmung (GDS-15)', icon:'💛',
+    tagline:'Geriatric Depression Scale',
+    source:'Sheikh & Yesavage 1986 · WHO empfohlen',
+    why:'Depression ist bei älteren Menschen unterdiagnostiziert und hat große Auswirkungen auf Lebensqualität und Gesundheit.',
+    maxScore:15, urgency:'medium',
+    questions:[
+      {id:'g1',text:'Grundsätzliche Zufriedenheit',icon:'😊',help:'Sind Sie grundsätzlich mit Ihrem Leben zufrieden?',
+        opts:[{l:'Ja',v:0},{l:'Nein',v:1}]},
+      {id:'g2',text:'Aktivitäten aufgegeben',icon:'🎯',help:'Haben Sie viele Ihrer Tätigkeiten und Interessen aufgegeben?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g3',text:'Leben als leer empfinden',icon:'🕳️',help:'Fühlen Sie, dass Ihr Leben leer ist?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g4',text:'Häufige Langeweile',icon:'😑',help:'Sind Sie oft gelangweilt?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g5',text:'Guter Lebensgeist',icon:'✨',help:'Haben Sie meist guten Lebensgeist?',
+        opts:[{l:'Ja',v:0},{l:'Nein',v:1}]},
+      {id:'g6',text:'Angst vor Schlimmem',icon:'😰',help:'Haben Sie Angst, dass Ihnen etwas Schlimmes passiert?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g7',text:'Meistens glücklich',icon:'😄',help:'Sind Sie meistens glücklich?',
+        opts:[{l:'Ja',v:0},{l:'Nein',v:1}]},
+      {id:'g8',text:'Hilflosigkeit',icon:'🤷',help:'Fühlen Sie sich manchmal hilflos?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g9',text:'Lieber zu Hause bleiben',icon:'🏠',help:'Bleiben Sie lieber zu Hause statt auszugehen?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+      {id:'g10',text:'Mehr Gedächtnisprobleme als andere',icon:'🧠',help:'Haben Sie das Gefühl, mehr Gedächtnisprobleme zu haben als die meisten?',
+        opts:[{l:'Nein',v:0},{l:'Ja',v:1}]},
+    ],
+    interpret:(s)=> s<=4?{label:'Keine Depression erkennbar',color:'var(--moss-lt)',tag:'tg'}:
+                    s<=8?{label:'Mögliche leichte Depression',color:'var(--amber)',tag:'ta'}:
+                         {label:'Hinweis auf Depression – Gespräch empfohlen',color:'var(--danger)',tag:'tr'}
+  },
+
+  pain: {
+    id:'pain', name:'Schmerz-Assessment', icon:'💊',
+    tagline:'NRS + BESD · Schmerzerfassung',
+    source:'Numerische Rating-Skala · DNQP Standard',
+    why:'Schmerz ist einer der häufigsten Gründe für Schlaf- und Mobilitätsprobleme. Genaue Erfassung ermöglicht gezielte Hilfe.',
+    maxScore:10, urgency:'medium',
+    questions:[
+      {id:'p1',text:'Schmerzstärke jetzt',icon:'🎚️',help:'Auf einer Skala von 0 (kein Schmerz) bis 10 (schlimmster vorstellbarer Schmerz)',
+        type:'scale'},
+      {id:'p2',text:'Schmerz-Lokalisation',icon:'📍',help:'Wo tut es weh?',
+        opts:[{l:'Kein Schmerz',v:0},{l:'Rücken / Wirbelsäule',v:1},{l:'Knie / Gelenke',v:1},{l:'Kopf / Nacken',v:1},{l:'Bauch / Brust',v:1},{l:'Mehrere Stellen',v:2}]},
+      {id:'p3',text:'Schmerzdauer',icon:'⏱️',help:'Wie lange besteht der Schmerz schon?',
+        opts:[{l:'Kein / Akut (heute)',v:0},{l:'Einige Tage',v:1},{l:'Chronisch (Wochen/Monate)',v:2}]},
+      {id:'p4',text:'Beeinflussung des Alltags',icon:'🚫',help:'Wie sehr schränkt der Schmerz Ihren Alltag ein?',
+        opts:[{l:'Gar nicht',v:0},{l:'Leicht eingeschränkt',v:1},{l:'Erheblich eingeschränkt',v:2},{l:'Vollständig eingeschränkt',v:3}]},
+    ],
+    interpret:(s)=>s===0?{label:'Schmerzfrei',color:'var(--moss-lt)',tag:'tg'}:
+                   s<=3?{label:'Leichter Schmerz',color:'var(--amber)',tag:'ta'}:
+                   s<=6?{label:'Mittlerer Schmerz – Maßnahmen nötig',color:'var(--terra)',tag:'tr'}:
+                        {label:'Starker Schmerz – sofort abklären',color:'var(--danger)',tag:'tr'}
+  },
+
+  mna: {
+    id:'mna', name:'Ernährung (MNA)', icon:'🥗',
+    tagline:'Mini Nutritional Assessment',
+    source:'Guigoz et al. 1994 · Nestle Nutrition',
+    why:'Mangelernährung betrifft bis zu 50% der pflegebedürftigen Menschen und wird häufig übersehen.',
+    maxScore:14, urgency:'medium',
+    questions:[
+      {id:'mn1',text:'Nahrungsaufnahme',icon:'🍽️',help:'Haben Sie in den letzten 3 Monaten weniger gegessen?',
+        opts:[{l:'Keine Veränderung',v:2},{l:'Leicht weniger',v:1},{l:'Deutlich weniger',v:0}]},
+      {id:'mn2',text:'Gewichtsverlust',icon:'⚖️',help:'Haben Sie in den letzten 3 Monaten an Gewicht verloren?',
+        opts:[{l:'Kein Gewichtsverlust',v:3},{l:'Weiß nicht',v:2},{l:'1–3 kg verloren',v:1},{l:'>3 kg verloren',v:0}]},
+      {id:'mn3',text:'Mobilität',icon:'🚶',help:'Wie ist Ihre Mobilität?',
+        opts:[{l:'Geht aus dem Haus',v:2},{l:'Steht auf, verlässt nicht das Bett',v:1},{l:'Bettlägerig',v:0}]},
+      {id:'mn4',text:'Akute Erkrankung',icon:'🤒',help:'Hatten Sie in letzten 3 Monaten eine akute Erkrankung?',
+        opts:[{l:'Nein',v:2},{l:'Ja',v:0}]},
+      {id:'mn5',text:'Neuropsychologische Probleme',icon:'🧠',help:'',
+        opts:[{l:'Keine',v:2},{l:'Leichte Demenz/Depression',v:1},{l:'Schwere Demenz/Depression',v:0}]},
+      {id:'mn6',text:'BMI',icon:'📏',help:'Wie ist Ihr Body-Mass-Index (Gewicht/Größe²)?',
+        opts:[{l:'BMI ≥ 23',v:3},{l:'BMI 21–23',v:2},{l:'BMI 19–21',v:1},{l:'BMI < 19',v:0}]},
+    ],
+    interpret:(s)=>s>=12?{label:'Normal – kein Risiko',color:'var(--moss-lt)',tag:'tg'}:
+                   s>=8?{label:'Risiko einer Mangelernährung',color:'var(--amber)',tag:'ta'}:
+                        {label:'Mangelernährung – Ernährungsberatung dringend',color:'var(--danger)',tag:'tr'}
+  },
+
+  braden: {
+    id:'braden', name:'Dekubitus (Braden)', icon:'🛏️',
+    tagline:'Braden-Skala · Druckwunden-Risiko',
+    source:'Braden & Bergstrom 1987 · DNQP Standard',
+    why:'Dekubitus (Druckwunden) können bei bettlägerigen Personen innerhalb von Stunden entstehen und sind sehr schmerzhaft.',
+    maxScore:23, urgency:'low',
+    questions:[
+      {id:'br1',text:'Sensorisches Empfinden',icon:'🤚',help:'Können Sie Unbehagen oder Schmerz durch Druck wahrnehmen?',
+        opts:[{l:'Vollständig vorhanden',v:4},{l:'Leicht eingeschränkt',v:3},{l:'Stark eingeschränkt',v:2},{l:'Vollständig eingeschränkt',v:1}]},
+      {id:'br2',text:'Feuchtigkeit',icon:'💧',help:'Wie oft ist die Haut Feuchtigkeit ausgesetzt?',
+        opts:[{l:'Selten feucht',v:4},{l:'Manchmal feucht',v:3},{l:'Oft feucht',v:2},{l:'Ständig feucht',v:1}]},
+      {id:'br3',text:'Aktivität',icon:'🚶',help:'Wie viel bewegen Sie sich?',
+        opts:[{l:'Geht regelmäßig',v:4},{l:'Geht selten',v:3},{l:'Rollstuhlabhängig',v:2},{l:'Bettlägerig',v:1}]},
+      {id:'br4',text:'Mobilität',icon:'🔄',help:'Können Sie Ihre Position selbst ändern?',
+        opts:[{l:'Keine Einschränkung',v:4},{l:'Leicht eingeschränkt',v:3},{l:'Stark eingeschränkt',v:2},{l:'Vollständig immobil',v:1}]},
+      {id:'br5',text:'Ernährung',icon:'🥗',help:'Wie ist Ihr Ernährungsstatus?',
+        opts:[{l:'Gut',v:4},{l:'Angemessen',v:3},{l:'Wahrscheinlich unzureichend',v:2},{l:'Sehr schlecht',v:1}]},
+      {id:'br6',text:'Reibung / Scherkräfte',icon:'⚡',help:'Gibt es Reibung beim Bewegen?',
+        opts:[{l:'Kein Problem',v:3},{l:'Potenzielles Problem',v:2},{l:'Problem vorhanden',v:1}]},
+    ],
+    interpret:(s)=>s>=19?{label:'Kein Risiko',color:'var(--moss-lt)',tag:'tg'}:
+                   s>=15?{label:'Geringes Risiko',color:'var(--amber)',tag:'ta'}:
+                   s>=13?{label:'Mittleres Risiko – Präventionsmaßnahmen',color:'var(--terra)',tag:'tr'}:
+                         {label:'Hohes Risiko – Sofortmaßnahmen nötig',color:'var(--danger)',tag:'tr'}
+  },
+
+  loneliness: {
+    id:'loneliness', name:'Soziale Teilhabe', icon:'👥',
+    tagline:'UCLA Loneliness Scale · Einsamkeit',
+    source:'Russell et al. 1980, validiert 65+',
+    why:'Soziale Isolation erhöht das Demenzrisiko um 26% und die Sterblichkeit um 29%. Früherkennung ist entscheidend.',
+    maxScore:24, urgency:'medium',
+    questions:[
+      {id:'l1',text:'Verbundenheit fühlen',icon:'💞',help:'Wie oft fühlen Sie sich mit anderen Menschen verbunden?',
+        opts:[{l:'Häufig',v:1},{l:'Manchmal',v:2},{l:'Selten',v:3},{l:'Nie',v:4}]},
+      {id:'l2',text:'Soziale Kontakte',icon:'📞',help:'Wie oft haben Sie sozialen Kontakt (persönlich, telefon, video)?',
+        opts:[{l:'Täglich',v:1},{l:'Mehrmals/Woche',v:2},{l:'Einmal/Woche',v:3},{l:'Selten/Nie',v:4}]},
+      {id:'l3',text:'Einsamkeitsgefühl',icon:'💔',help:'Wie oft fühlen Sie sich einsam?',
+        opts:[{l:'Nie',v:1},{l:'Selten',v:2},{l:'Manchmal',v:3},{l:'Häufig',v:4}]},
+      {id:'l4',text:'Verständnis durch andere',icon:'🤝',help:'Fühlen Sie sich von anderen verstanden?',
+        opts:[{l:'Ja, oft',v:1},{l:'Manchmal',v:2},{l:'Selten',v:3},{l:'Nein',v:4}]},
+      {id:'l5',text:'Jemand zum Reden',icon:'💬',help:'Haben Sie jemanden, mit dem Sie wirklich reden können?',
+        opts:[{l:'Ja, mehrere',v:1},{l:'Ja, eine Person',v:2},{l:'Nicht wirklich',v:3},{l:'Nein',v:4}]},
+      {id:'l6',text:'Teil einer Gemeinschaft',icon:'🏘️',help:'Fühlen Sie sich als Teil einer Gemeinschaft?',
+        opts:[{l:'Ja, definitiv',v:1},{l:'Manchmal',v:2},{l:'Kaum',v:3},{l:'Nein',v:4}]},
+    ],
+    interpret:(s)=>s<=10?{label:'Gute soziale Einbindung',color:'var(--moss-lt)',tag:'tg'}:
+                   s<=17?{label:'Moderate Einsamkeit – Kontakte fördern',color:'var(--amber)',tag:'ta'}:
+                         {label:'Starke Einsamkeit – Unterstützung dringend',color:'var(--danger)',tag:'tr'}
+  },
+
+  zarit: {
+    id:'zarit', name:'Angehörigen-Belastung', icon:'🤲',
+    tagline:'Zarit Burden Interview',
+    source:'Zarit et al. 1980 · Pflegende Angehörige',
+    why:'Pflegende Angehörige sind oft stark belastet. Diese Erfassung hilft, rechtzeitig Unterstützung zu organisieren.',
+    maxScore:48, urgency:'low', forCaregiver: true,
+    questions:[
+      {id:'z1',text:'Zeitbelastung',icon:'⏰',help:'Fühlen Sie sich durch die Pflege zeitlich sehr belastet?',
+        opts:[{l:'Nie',v:0},{l:'Selten',v:1},{l:'Manchmal',v:2},{l:'Häufig',v:3},{l:'Fast immer',v:4}]},
+      {id:'z2',text:'Stress durch Verhalten',icon:'😤',help:'Fühlen Sie sich gestresst durch das Verhalten des Pflegebedürftigen?',
+        opts:[{l:'Nie',v:0},{l:'Selten',v:1},{l:'Manchmal',v:2},{l:'Häufig',v:3},{l:'Fast immer',v:4}]},
+      {id:'z3',text:'Eigene Gesundheit',icon:'❤️‍🩹',help:'Glauben Sie, dass Ihre eigene Gesundheit durch die Pflege leidet?',
+        opts:[{l:'Nie',v:0},{l:'Selten',v:1},{l:'Manchmal',v:2},{l:'Häufig',v:3},{l:'Fast immer',v:4}]},
+      {id:'z4',text:'Privatsphäre',icon:'🏠',help:'Haben Sie das Gefühl, nicht genug Zeit für sich selbst zu haben?',
+        opts:[{l:'Nie',v:0},{l:'Selten',v:1},{l:'Manchmal',v:2},{l:'Häufig',v:3},{l:'Fast immer',v:4}]},
+      {id:'z5',text:'Soziale Isolation',icon:'🚪',help:'Fühlen Sie sich durch die Pflege sozial isoliert?',
+        opts:[{l:'Nie',v:0},{l:'Selten',v:1},{l:'Manchmal',v:2},{l:'Häufig',v:3},{l:'Fast immer',v:4}]},
+      {id:'z6',text:'Gesamtbelastung',icon:'⚖️',help:'Insgesamt: Wie stark fühlen Sie sich durch die Pflege belastet?',
+        opts:[{l:'Überhaupt nicht',v:0},{l:'Ein wenig',v:1},{l:'Mäßig',v:2},{l:'Ziemlich',v:3},{l:'Sehr stark',v:4}]},
+    ],
+    interpret:(s)=>s<=20?{label:'Geringe Belastung',color:'var(--moss-lt)',tag:'tg'}:
+                   s<=40?{label:'Mittlere Belastung – Entlastung erwägen',color:'var(--amber)',tag:'ta'}:
+                         {label:'Hohe Belastung – dringend Unterstützung suchen',color:'var(--danger)',tag:'tr'}
+  },
+
+  medication: {
+    id:'medication', name:'Medikations-Check', icon:'💊',
+    tagline:'Polypharmazie & Risiko-Screening',
+    source:'STOPP/START Kriterien · EuGMS',
+    why:'Ältere Menschen nehmen im Schnitt 5–10 Medikamente täglich. Wechselwirkungen und unnötige Medikamente sind häufig.',
+    maxScore:10, urgency:'high',
+    questions:[
+      {id:'med1',text:'Anzahl Medikamente',icon:'💊',help:'Wie viele verschiedene Medikamente nehmen Sie täglich?',
+        opts:[{l:'1–4 Medikamente',v:0},{l:'5–9 Medikamente',v:2},{l:'10 oder mehr',v:4}]},
+      {id:'med2',text:'Selbstmanagement',icon:'🗓️',help:'Können Sie Ihre Medikamente selbst richten und einnehmen?',
+        opts:[{l:'Vollständig selbstständig',v:0},{l:'Brauche Erinnerung',v:1},{l:'Jemand muss helfen',v:2},{l:'Vollständig abhängig',v:3}]},
+      {id:'med3',text:'Schmerzmittel-Nutzung',icon:'⚕️',help:'Nehmen Sie regelmäßig Schmerzmittel (auch freiverkäuflich)?',
+        opts:[{l:'Nein / nur gelegentlich',v:0},{l:'Ja, täglich',v:1}]},
+      {id:'med4',text:'Blutverdünner / Gerinnungshemmer',icon:'🩸',help:'Nehmen Sie Blutverdünner (Marcumar, Eliquis, Xarelto etc.)?',
+        opts:[{l:'Nein',v:0},{l:'Ja – regelmäßige Kontrollen',v:1},{l:'Ja – keine regelmäßige Kontrolle',v:2}]},
+    ],
+    interpret:(s)=>s<=1?{label:'Gutes Medikationsmanagement',color:'var(--moss-lt)',tag:'tg'}:
+                   s<=4?{label:'Kontrolle empfohlen',color:'var(--amber)',tag:'ta'}:
+                        {label:'Medikationsreview dringend – Arzt ansprechen',color:'var(--danger)',tag:'tr'}
+  }
+};
+
+// ══════════════════════════════════════════════════
+// CURRENT ASSESSMENT STATE
+// ══════════════════════════════════════════════════
+let currentAssessId = null;
+let currentQIdx = 0;
+let currentAnswers = {};
+let currentScore = 0;
+
+// PRO data
+let proData = {};
+
+// ══════════════════════════════════════════════════
+// DASHBOARD RENDER
+// ══════════════════════════════════════════════════
+function renderDashboard() {
+  // Greeting
+  const h = new Date().getHours();
+  document.getElementById('dashGreeting').textContent = h<12?'Guten Morgen ☀️':h<17?'Guten Tag 🌤':' Guten Abend 🌙';
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('dashName').textContent = DB.user.name;
+  document.getElementById('topbarUser').textContent = DB.user.name + ' ' + (DB.user.surname||'')[0] + '.';
+
+  // Overall score
+  const done = Object.keys(DB.assessments).length;
+  const total = Object.keys(ASSESSMENTS).length;
+  document.getElementById('pendingBadge').textContent = total - done;
+
+  // Compute overall
+  let scores = [];
+  if(DB.assessments.barthel) { const s=DB.assessments.barthel.score; scores.push(s); document.getElementById('d-barthel').textContent=s+'/100'; }
+  if(DB.assessments.mini_cog) { const s=DB.assessments.mini_cog.score; scores.push(s*20); document.getElementById('d-kogn').textContent=s+'/5'; }
+  if(DB.assessments.falls) { const s=DB.assessments.falls.score; scores.push(Math.max(0,(5-s)*20)); document.getElementById('d-falls').textContent=s+'/5'; }
+
+  const overall = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+  if(overall !== null) {
+    document.getElementById('overallScore').textContent = overall;
+    const circ = 201.1; const offset = circ - (circ * overall/100);
+    document.getElementById('overallRingDash').setAttribute('stroke-dashoffset', offset);
+    document.getElementById('overallRingDash').style.stroke = overall>=70?'var(--sage)':overall>=50?'var(--amber)':'var(--danger)';
+  }
+
+  // PRO QoL
+  if(DB.pro.vas) { document.getElementById('d-qol').textContent = DB.pro.vas+'/100'; }
+
+  // Grid
+  renderAssessGrid();
+  renderTrend();
+  renderDashAlerts();
+  maybeShowSpider();
+}
+
+function renderAssessGrid() {
+  const grid = document.getElementById('assessGrid');
+  grid.innerHTML = '';
+  Object.values(ASSESSMENTS).forEach(a => {
+    const done = DB.assessments[a.id];
+    const card = document.createElement('button');
+    card.className = 'ag-card' + (done?' done':'') + (a.urgency==='high'&&!done?' urgent':'');
+    card.onclick = () => startAssessment(a.id);
+    const score = done ? a.interpret(done.score) : null;
+    card.innerHTML = `
+      <span class="ag-ico">${a.icon}</span>
+      <span class="ag-name">${a.name}</span>
+      <span class="ag-score">${done?`Score: ${done.score}/${a.maxScore}`:`${a.questions.length} Fragen · ${a.urgency==='high'?'Priorität':'Standard'}`}</span>
+      ${done?`<span class="ag-badge"><span class="tag t${score.tag[1]}">${score.label.split('–')[0].trim()}</span></span>`:''}
+      ${done?`<div class="ag-progress"><div class="ag-progress-fill" style="width:${Math.round(done.score/a.maxScore*100)}%"></div></div>`:''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderTrend() {
+  const chart = document.getElementById('trendChart');
+  chart.innerHTML = '';
+  const weeks = ['W1','W2','W3','W4','W5','W6','W7','Heute'];
+  const vals = [58,62,60,65,68,70,69, DB.assessments.barthel ? DB.assessments.barthel.score : null];
+  const max = Math.max(...vals.filter(Boolean), 80);
+  vals.forEach((v,i) => {
+    const col = document.createElement('div'); col.className='mc-col';
+    const h = v ? Math.round((v/max)*100) : 5;
+    const isToday = i===7; const hasData = v !== null;
+    col.innerHTML = `
+      <div class="mc-bar" style="height:${h}%;background:${isToday?'var(--moss)':hasData?'var(--sage)':'var(--sand-dk)'};flex:1;width:100%"></div>
+      <div class="mc-lbl" style="color:${isToday?'var(--moss)':'var(--text-3)'};font-weight:${isToday?'800':'500'}">${weeks[i]}</div>`;
+    chart.appendChild(col);
+  });
+}
+
+function renderDashAlerts() {
+  const el = document.getElementById('dashAlerts');
+  const alerts = [];
+  if(DB.assessments.falls && DB.assessments.falls.score>=3) alerts.push({icon:'⚠️',text:'Hohes Sturzrisiko – Maßnahmen ausstehend',color:'var(--danger)'});
+  if(DB.assessments.mini_cog && DB.assessments.mini_cog.score<=2) alerts.push({icon:'🧠',text:'Kognition auffällig – Abklärung empfohlen',color:'var(--amber)'});
+  if(DB.assessments.gds && DB.assessments.gds.score>=5) alerts.push({icon:'💛',text:'Stimmungsauffälligkeit – Gespräch empfohlen',color:'var(--amber)'});
+  if(DB.assessments.mna && DB.assessments.mna.score<=7) alerts.push({icon:'🥗',text:'Ernährungsrisiko – Ernährungsberatung',color:'var(--terra)'});
+  if(DB.assessments.loneliness && DB.assessments.loneliness.score>=18) alerts.push({icon:'💔',text:'Starke Einsamkeit – soziale Unterstützung',color:'var(--danger)'});
+  if(alerts.length === 0 && Object.keys(DB.assessments).length > 0) {
+    el.innerHTML = `<div style="font-size:.78rem;color:var(--moss);font-weight:700;padding:8px 0">✅ Keine kritischen Auffälligkeiten</div>`;
+    return;
+  }
+  if(alerts.length === 0) { el.innerHTML='<div style="font-size:.76rem;color:var(--text-3);text-align:center;padding:8px">Assessments ausfüllen um Empfehlungen zu erhalten.</div>'; return; }
+  el.innerHTML = alerts.map(a=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--sand-dk)"><span style="font-size:1rem;flex-shrink:0">${a.icon}</span><div style="font-size:.75rem;color:${a.color};font-weight:600;line-height:1.4">${a.text}</div></div>`).join('');
+  document.getElementById('lastReportDate').textContent = new Date().toLocaleDateString('de-DE');
+}
+
+// ══════════════════════════════════════════════════
+// ASSESSMENT ENGINE
+// ══════════════════════════════════════════════════
+function openAssessMenu() {
+  const modal = document.getElementById('assessMenuModal');
+  const list = document.getElementById('assessMenuList');
+  list.innerHTML = '';
+  Object.values(ASSESSMENTS).forEach(a => {
+    const done = DB.assessments[a.id];
+    const btn = document.createElement('button');
+    btn.style.cssText = 'width:100%;background:#fff;border:1.5px solid var(--sand-dk);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s';
+    if(done) btn.style.borderColor='var(--sage)';
+    btn.innerHTML = `
+      <span style="font-size:1.4rem">${a.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:.82rem;font-weight:700;color:var(--text)">${a.name}</div>
+        <div style="font-size:.68rem;color:var(--text-3);margin-top:2px">${a.tagline} · ${a.questions.length} Fragen</div>
+      </div>
+      ${done?`<span class="tag tg">✓ ${done.score}/${a.maxScore}</span>`:`<span class="tag ${a.urgency==='high'?'tr ta':'tb'}">${a.urgency==='high'?'Priorität':'Offen'}</span>`}`;
+    btn.onclick = () => { modal.classList.remove('open'); startAssessment(a.id); };
+    list.appendChild(btn);
+  });
+  modal.classList.add('open');
+}
+
+function startAssessment(id) {
+  currentAssessId = id;
+  currentQIdx = 0;
+  currentAnswers = {};
+  currentScore = 0;
+  const a = ASSESSMENTS[id];
+  document.getElementById('assessTitle').textContent = a.name;
+  document.getElementById('nb-assess').classList.add('active');
+  switchScreen('sc-assess');
+  renderQuestion();
+}
+
+function backFromAssess() {
+  openAssessMenu();
+  switchScreen('sc-assess'); // keeps assess screen open but shows modal
+}
+
+function renderQuestion() {
+  const a = ASSESSMENTS[currentAssessId];
+  const q = a.questions[currentQIdx];
+  const total = a.questions.length;
+  const pct = Math.round((currentQIdx/total)*100);
+
+  document.getElementById('assessSub').textContent = `Frage ${currentQIdx+1} von ${total} · ${a.name}`;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = `Schritt ${currentQIdx+1} von ${total}`;
+  document.getElementById('progPct').textContent = pct + '%';
+
+  const body = document.getElementById('assessBody');
+
+  // Intro first
+  if(currentQIdx === 0) {
+    body.innerHTML = `
+      <div class="qs-block active" id="qs-intro">
+        <div class="qs-context">${a.source}</div>
+        <div class="qs-title">${a.name}</div>
+        <div class="qs-why">${a.why}</div>
+        ${a.forCaregiver?'<div style="background:var(--amber-bg);border-radius:var(--r-sm);padding:9px 12px;font-size:.72rem;color:var(--amber);margin-bottom:12px;border-left:3px solid var(--amber)">📌 Dieses Assessment richtet sich an pflegende Angehörige</div>':''}
+        <div class="nav-row"><button class="btn-next-sm" onclick="renderQ()">Starten →</button></div>
+        <a class="skip-link" onclick="backFromAssess()">← Zurück zur Auswahl</a>
+      </div>`;
+    return;
+  }
+  renderQ();
+}
+
+function renderQ() {
+  const a = ASSESSMENTS[currentAssessId];
+  const q = a.questions[currentQIdx];
+  const total = a.questions.length;
+
+  const body = document.getElementById('assessBody');
+
+  let optHTML = '';
+  if(q.type === 'scale') {
+    // NRS numeric scale 0–10
+    const saved = currentAnswers[q.id]?.v ?? 5;
+    optHTML = `
+      <div class="range-val-display" id="qRangeDisplay">${saved}</div>
+      <div class="range-wrap">
+        <div class="range-track">
+          <input class="range-input" type="range" min="0" max="10" value="${saved}" id="qRange"
+            oninput="document.getElementById('qRangeDisplay').textContent=this.value;currentAnswers['${q.id}']={v:parseInt(this.value)}">
+        </div>
+        <div class="range-labels"><span>😊 0 – kein Schmerz</span><span>😣 10 – schlimmster</span></div>
+      </div>`;
+  } else {
+    const selIdx = currentAnswers[q.id]?.optIdx;
+    optHTML = `<div class="big-opts">${q.opts.map((o,i)=>`
+      <button class="big-opt${selIdx===i?' sel':''}" onclick="selectOpt('${q.id}',${i},${o.v??0},this)">
+        <span class="bo-ico">${q.icon||'●'}</span>
+        <div class="bo-main"><div class="bo-text">${o.l}</div></div>
+        ${o.v!==undefined?`<span class="bo-val">${o.v} P.</span>`:''}
+        <div class="bo-dot">${selIdx===i?'✓':''}</div>
+      </button>`).join('')}
+    </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="qs-block active">
+      <div class="qs-context">${a.name} · Frage ${currentQIdx+1}/${total}</div>
+      <div class="qs-title">${q.text}</div>
+      ${q.help?`<div class="qs-why">${q.help}</div>`:''}
+      <div class="qs-q">Ihre Einschätzung:</div>
+      ${optHTML}
+      <div class="nav-row">
+        ${currentQIdx>0?`<button class="btn-back-sm" onclick="prevQ()">←</button>`:''}
+        <button class="btn-next-sm" onclick="nextQ()" id="nextBtn">
+          ${currentQIdx===total-1?'Auswertung →':'Weiter →'}
+        </button>
+      </div>
+      <a class="skip-link" onclick="nextQ()">Überspringen</a>
+    </div>`;
+}
+
+function selectOpt(qid, optIdx, val, btn) {
+  btn.closest('.big-opts').querySelectorAll('.big-opt').forEach(b=>{ b.classList.remove('sel'); b.querySelector('.bo-dot').textContent=''; });
+  btn.classList.add('sel'); btn.querySelector('.bo-dot').textContent='✓';
+  currentAnswers[qid] = { v: val, optIdx };
+}
+
+function nextQ() {
+  const a = ASSESSMENTS[currentAssessId];
+  // Accumulate score
+  const q = a.questions[currentQIdx];
+  if(q.type==='scale') {
+    const r = document.getElementById('qRange');
+    if(r) currentAnswers[q.id] = { v: parseInt(r.value) };
+  }
+  if(currentAnswers[q.id] !== undefined) currentScore += currentAnswers[q.id].v || 0;
+
+  currentQIdx++;
+  if(currentQIdx >= a.questions.length) {
+    finishAssessment();
+  } else {
+    renderQ();
+  }
+}
+
+function prevQ() {
+  if(currentQIdx > 1) {
+    // Subtract last added score
+    const prev = ASSESSMENTS[currentAssessId].questions[currentQIdx];
+    if(currentAnswers[prev?.id]) currentScore -= currentAnswers[prev.id].v || 0;
+    currentQIdx--;
+    renderQ();
+  } else {
+    currentQIdx = 0;
+    renderQuestion();
+  }
+}
+
+function finishAssessment() {
+  const a = ASSESSMENTS[currentAssessId];
+  const score = Math.min(currentScore, a.maxScore);
+  const interp = a.interpret(score);
+
+  // Save to DB
+  DB.assessments[currentAssessId] = {
+    score, answers: currentAnswers,
+    date: new Date().toISOString(),
+    label: interp.label
+  };
+  DB.history.push({ date: new Date().toISOString(), score });
+  saveData(DB);
+  maybeShowSpider();
+
+  // Render result
+  const recs = getRecommendations(currentAssessId, score);
+  document.getElementById('assessBody').innerHTML = `
+    <div class="result-block">
+      <div class="rb-header">
+        <div class="rb-ico">${a.icon}</div>
+        <div>
+          <div class="rb-title">${a.name}</div>
+          <div style="font-size:.68rem;color:var(--text-3);margin-top:1px">${a.source}</div>
+        </div>
+        <span class="rb-score-pill tag t${interp.tag[1]}" style="background:${interp.color}22;color:${interp.color}">${score} / ${a.maxScore}</span>
+      </div>
+      <div style="height:8px;background:var(--sand-dk);border-radius:4px;overflow:hidden;margin-bottom:12px">
+        <div style="height:100%;border-radius:4px;background:${interp.color};width:${Math.round(score/a.maxScore*100)}%;transition:width 1s"></div>
+      </div>
+      <div class="rb-interpretation"><strong>${interp.label}</strong><br><br>${getInterpretationText(currentAssessId, score)}</div>
+      <div class="rb-recs">${recs.map(r=>`<div class="rb-rec">${r}</div>`).join('')}</div>
+      <div class="rb-pro-note">💡 Dieses Ergebnis wurde lokal gespeichert. Teilen Sie es mit Ihrem Arzt oder buchen Sie ein Expertengespräch.</div>
+    </div>
+    <button class="btn-p" onclick="openAssessMenu();switchScreen('sc-assess')" style="margin-bottom:10px">Weiteres Assessment starten →</button>
+    <button class="btn-s" onclick="switchScreen('sc-dash');renderDashboard()">Zur Übersicht</button>
+    <div style="height:14px"></div>`;
+
+  document.getElementById('assessTitle').textContent = '✓ Ergebnis';
+  document.getElementById('assessSub').textContent = a.name + ' · abgeschlossen';
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('progPct').textContent = '100%';
+  showToast(`✓ ${a.name} gespeichert`);
+}
+
+function getInterpretationText(id, score) {
+  const texts = {
+    barthel: score>=80?'Sie sind weitgehend selbstständig. Ziel ist es, diese Selbstständigkeit so lange wie möglich zu erhalten.':
+             score>=60?'Sie benötigen in einigen Bereichen Unterstützung. Ein strukturierter Pflegeplan kann helfen.':
+             'Sie sind auf regelmäßige Hilfe angewiesen. Eine professionelle Pflegeplanung ist sinnvoll.',
+    falls: score===0?'Ihr Sturzrisiko ist niedrig. Präventive Maßnahmen (Bewegung, Wohnanpassung) empfohlen.':
+           score<=2?'Mittleres Sturzrisiko. Bitte prüfen Sie: Sind Haltegriffe im Bad? Liegt der Boden sicher?':
+           'Hohes Sturzrisiko. Sprechen Sie bitte unmittelbar mit Ihrem Arzt und Ihrer Familie.',
+    mini_cog: score>=4?'Keine auffälligen kognitiven Veränderungen. Regelmäßiges Monitoring empfohlen.':
+              score>=3?'Leichte Auffälligkeiten. Tägliche kognitive Aktivierung (Lesen, Reden, Rätsel) kann helfen.':
+              'Kognitive Beeinträchtigungen möglich. Eine neurologische Untersuchung ist empfehlenswert.',
+    gds: score<=4?'Keine Hinweise auf depressive Stimmung. Gut!':
+         score<=8?'Leichte Stimmungsauffälligkeit. Soziale Aktivitäten und Gespräche können helfen.':
+         'Hinweis auf Depression. Bitte sprechen Sie mit Ihrem Arzt – es gibt gute Behandlungsmöglichkeiten.',
+    pain: score===0?'Schmerzfrei – das ist ein wichtiges Zeichen guter Gesundheit.':
+          score<=3?'Leichte Schmerzen. Beobachten Sie Verlauf und informieren Sie Ihren Arzt.':
+          'Schmerzen die den Alltag beeinflussen. Bitte suchen Sie ärztliche Hilfe.',
+    mna: score>=12?'Normaler Ernährungsstatus. Weiter auf ausgewogene Ernährung achten.':
+         score>=8?'Risiko einer Mangelernährung. Ernährungsberatung und Gewichtskontrolle empfohlen.':
+         'Mangelernährung möglich. Bitte sprechen Sie Ihren Arzt an.',
+    braden: score>=19?'Kein erhöhtes Dekubitusrisiko.':
+            score>=15?'Geringes Risiko. Regelmäßige Positionswechsel und Hautpflege.':
+            'Erhöhtes Risiko. Druckentlastende Matratze und Lagewechsel dringend empfohlen.',
+    loneliness: score<=10?'Gute soziale Einbindung. Kontakte pflegen!':
+                score<=17?'Moderate Einsamkeit. Neue Kontakte und Aktivitäten können helfen.':
+                'Starke Einsamkeit. Besuchsdienste, Tagesgruppen oder Momo können erste Schritte sein.',
+    zarit: score<=20?'Geringe Belastung. Trotzdem: Angehörige brauchen auch Pausen!':
+           score<=40?'Mittlere Belastung. Entlastungsangebote (Tagespflege, Verhinderungspflege) sind wichtig.':
+           'Hohe Belastung. Suchen Sie bitte aktiv Unterstützung – für sich und die pflegebedürftige Person.',
+    medication: score<=1?'Gutes Medikationsmanagement.':
+                score<=4?'Einige Risikofaktoren. Besprechen Sie Ihren Medikationsplan beim nächsten Arztbesuch.':
+                'Polypharmazie-Risiko. Ein Medikationsreview durch Arzt oder Apotheke ist dringend empfohlen.',
+  };
+  return texts[id] || 'Ergebnis gespeichert.';
+}
+
+function getRecommendations(id, score) {
+  const recs = {
+    barthel: ['Regelmäßige Bewegungsübungen zum Erhalt der Selbstständigkeit','Hilfsmittel prüfen: Rollator, Greifhilfen, Badehilfen','Physiotherapie zur Funktionserhaltung beantragen'],
+    falls: ['Haltegriffe im Bad installieren (lassen)','Lose Teppiche und Stolperfallen entfernen','Gleichgewichtstraining 2× wöchentlich','Ausreichend Beleuchtung, besonders nachts','Schuhwerk prüfen – feste Sohlen, kein Schlupf'],
+    mini_cog: ['Tägliche kognitive Aktivierung: Lesen, Reden, Rätsel','Feste Tagesstruktur etablieren','Neurologischen Facharzt aufsuchen','Momo-Chat täglich für kognitive Übungen nutzen'],
+    gds: ['Soziale Kontakte aktiv pflegen und fördern','Körperliche Aktivität (Spaziergang täglich)','Bei anhaltenden Symptomen: Hausarzt ansprechen','Momo steht täglich für Gespräche zur Verfügung'],
+    pain: ['Schmerztagebuch führen','Arzt über Schmerzen informieren','Wärme-/Kältetherapie als Ergänzung prüfen','Physiotherapie für chronische Schmerzen'],
+    mna: ['Mahlzeiten auf 5–6 kleine Portionen aufteilen','Proteinreiche Lebensmittel bevorzugen','Ausreichend Flüssigkeit (mind. 1,5L täglich)','Ernährungsberatung in Anspruch nehmen'],
+    braden: ['Regelmäßige Positionswechsel alle 2h','Druckentlastende Matratze prüfen','Hautpflege täglich (Eincremen)','Auf Rötungen kontrollieren'],
+    loneliness: ['Regelmäßige Telefonanrufe mit Familie planen','Besuchsdienst oder Ehrenamtliche anfragen','Tagesgruppe oder Seniorentreff erkunden','Momo täglich für Gespräche nutzen'],
+    zarit: ['Kurzzeitpflege oder Tagespflege nutzen','Selbsthilfegruppe für Angehörige besuchen','Verhinderungspflege beantragen','Eigene Auszeiten und Hobbys einplanen'],
+    medication: ['Alle Medikamente mit Hausarzt besprechen','Medikationsplan immer aktuell halten','Apotheken-Medikationscheck nutzen','Keine Selbstmedikation ohne Rücksprache'],
+  };
+  return (recs[id] || ['Ergebnis mit Ihrem Arzt besprechen']).slice(0,3);
+}
+
+// ══════════════════════════════════════════════════
+// PRO – Patient Reported Outcomes
+// ══════════════════════════════════════════════════
+function setPRO(dim, val, btn) {
+  proData[dim] = val;
+  const row = btn.closest('.likert-row') || btn.closest('.freq-scale');
+  if(row) row.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const scoreEl = document.getElementById('pro-'+dim+'-score');
+  if(scoreEl) { scoreEl.textContent = val; }
+  DB.pro[dim] = val;
+  saveData(DB);
+}
+
+function updateVAS(v) {
+  document.getElementById('vasDisplay').textContent = v;
+  const faces = v<=20?'😞':v<=40?'😕':v<=60?'😐':v<=80?'😊':'😄';
+  document.getElementById('vasDisplay').textContent = faces + ' ' + v;
+}
+function saveVAS() {
+  const v = document.getElementById('vasSlider').value;
+  DB.pro.vas = parseInt(v);
+  saveData(DB);
+  showToast('VAS gespeichert: ' + v + '/100');
+  renderDashboard();
+
+// Deep-link routing from parent app (care4you-start.html)
+(function(){
+  const h = (location.hash||'').replace('#','');
+  if(h === 'report' || h === 'doctor'){ switchScreen('sc-doctor'); if(typeof renderDoctorReport==='function') renderDoctorReport(); }
+  else if(h === 'pro'){ switchScreen('sc-pro'); }
+  else if(h === 'assess'){ if(typeof openAssessMenu==='function') openAssessMenu(); }
+})();
+}
+function savePRO() {
+  DB.pro.savedAt = new Date().toISOString();
+  saveData(DB);
+  showToast('✓ PRO-Profil gespeichert');
+  renderDashboard();
+}
+
+// ══════════════════════════════════════════════════
+// REPORT
+// ══════════════════════════════════════════════════
+function renderReport() {
+  const date = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('reportDate').textContent = 'Erstellt am ' + date;
+  document.getElementById('rc-date').textContent = date;
+
+  // Summary
+  const done = Object.keys(DB.assessments);
+  if(done.length === 0) return;
+
+  let summaryHTML = done.map(id => {
+    const a = ASSESSMENTS[id]; const d = DB.assessments[id];
+    const interp = a.interpret(d.score);
+    return `<div class="rc-row">
+      <div class="rc-lbl">${a.icon} ${a.name}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="tag t${interp.tag[1]}">${d.score}/${a.maxScore}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('summaryBody').innerHTML = summaryHTML;
+
+  // Dimensions bars
+  let dimHTML = done.map(id => {
+    const a = ASSESSMENTS[id]; const d = DB.assessments[id];
+    const pct = Math.round(d.score/a.maxScore*100);
+    const interp = a.interpret(d.score);
+    return `<div class="rc-bar-row">
+      <div class="rc-bar-lbl">${a.icon} ${a.name}</div>
+      <div class="rc-bar-track"><div class="rc-bar-fill" style="width:${pct}%;background:${interp.color}"></div></div>
+      <div class="rc-bar-val">${d.score}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('dimensionsBody').innerHTML = dimHTML || '<div style="font-size:.76rem;color:var(--text-3);text-align:center;padding:10px">Noch keine Daten.</div>';
+
+  // PRO
+  const pro = DB.pro;
+  if(Object.keys(pro).length > 0) {
+    const proLabels = {mob:'Beweglichkeit',self:'Selbstversorgung',act:'Tätigkeiten',pain:'Schmerz',anx:'Angst/Stimmung',glob:'Globale Gesundheit',ment:'Geistige Gesundheit',vas:'Gesundheits-VAS'};
+    let proHTML = Object.entries(pro).filter(([k])=>k!=='savedAt').map(([k,v])=>`
+      <div class="rc-row"><div class="rc-lbl">${proLabels[k]||k}</div><div class="rc-val">${v}${k==='vas'?'/100':'/3–5'}</div></div>`).join('');
+    document.getElementById('proReportBody').innerHTML = proHTML;
+  }
+
+  // Recs
+  const allRecs = [];
+  done.forEach(id => {
+    const d = DB.assessments[id];
+    const a = ASSESSMENTS[id];
+    getRecommendations(id, d.score).forEach(r => allRecs.push({ico:a.icon, text:r, urgent: d.score <= a.maxScore*0.5}));
+  });
+  if(allRecs.length) {
+    document.getElementById('recsBody').innerHTML = allRecs.slice(0,8).map(r=>`
+      <div class="rb-rec" style="padding:6px 0;border-bottom:1px solid var(--sand-dk);${r.urgent?'color:var(--danger)':''}">
+        ${r.ico} ${r.text}
+      </div>`).join('');
+  }
+}
+
+function exportPDF() { showToast('📄 PDF wird für Arzt vorbereitet…'); }
+function exportData() {
+  const json = JSON.stringify(DB, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='care4you_daten.json'; a.click();
+  showToast('📊 Daten exportiert');
+}
+function shareReport() { showToast('📤 Teilen-Funktion wird vorbereitet…'); }
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const map={'sc-dash':'nb-dash','sc-assess':'nb-assess','sc-pro':'nb-pro','sc-report':'nb-report','sc-doctor':'nb-doctor'};
+  if(map[id]) document.getElementById(map[id]).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function closeModal(e) { if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); }
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+let tT;
+function showToast(m) {
+  const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show');
+  clearTimeout(tT); tT=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+
+// ══════════════════════════════════════════════════════
+// SPIDER / RADAR CHART ENGINE
+// ══════════════════════════════════════════════════════
+
+const SPIDER_DIMS = [
+  { key:'barthel',   label:'Selbst-\nversorgung', maxScore:100, icon:'🦾',
+    color:'#10284A', potColor:'rgba(16,40,74,.22)',
+    potential: (s) => Math.min(100, s + (s<80?20:s<90?10:5)) },
+  { key:'falls',     label:'Sturz-\nSicherheit', maxScore:5, icon:'⚠️',
+    color:'#B03020', potColor:'rgba(176,48,32,.15)', inverse:true,
+    potential: (s) => Math.max(0, s - (s>=3?2:s>=1?1:0)) },
+  { key:'mini_cog',  label:'Kognition', maxScore:5, icon:'🧠',
+    color:'#D49818', potColor:'rgba(196,134,10,.18)',
+    potential: (s) => Math.min(5, s + (s<3?1.5:0.5)) },
+  { key:'gds',       label:'Stimmung', maxScore:15, icon:'💛',
+    color:'#3A7BC8', potColor:'rgba(58,123,200,.15)', inverse:true,
+    potential: (s) => Math.max(0, s - (s>=8?4:s>=5?2:0)) },
+  { key:'mna',       label:'Ernährung', maxScore:14, icon:'🥗',
+    color:'#28A890', potColor:'rgba(40,168,144,.18)',
+    potential: (s) => Math.min(14, s + (s<8?4:s<12?2:1)) },
+  { key:'loneliness',label:'Soziales', maxScore:24, icon:'👥',
+    color:'#7B3FA8', potColor:'rgba(123,63,168,.15)', inverse:true,
+    potential: (s) => Math.max(0, s - (s>=18?6:s>=11?3:0)) },
+  { key:'pain',      label:'Schmerz-\nfreiheit', maxScore:10, icon:'💊',
+    color:'#D4622A', potColor:'rgba(212,98,42,.15)', inverse:true,
+    potential: (s) => Math.max(0, s - (s>=6?3:s>=3?2:0)) },
+  { key:'braden',    label:'Haut-\nschutz', maxScore:23, icon:'🛏️',
+    color:'#2A6B8A', potColor:'rgba(42,107,138,.15)',
+    potential: (s) => Math.min(23, s + (s<15?4:s<19?2:1)) },
+];
+
+// Normalize score to 0–1 (higher = better always)
+function normalizeScore(dim, score) {
+  if(score === null || score === undefined) return null;
+  const raw = score / dim.maxScore;
+  return dim.inverse ? 1 - raw : raw;
+}
+
+function getPotentialNorm(dim, score) {
+  if(score === null || score === undefined) return null;
+  const potRaw = dim.potential(score) / dim.maxScore;
+  return dim.inverse ? 1 - potRaw : potRaw;
+}
+
+let spiderMode = 'both'; // 'current', 'potential', 'both'
+function setSpiderMode(m) {
+  spiderMode = m;
+  document.querySelectorAll('.spider-action-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sab-'+m).classList.add('active');
+  drawSpider('spiderCanvas', false);
+}
+
+function drawSpider(canvasId, forReport) {
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W,H)/2 - 36;
+  const N = SPIDER_DIMS.length;
+  ctx.clearRect(0,0,W,H);
+
+  // Get data
+  const current = SPIDER_DIMS.map(d => {
+    const a = DB.assessments[d.key];
+    return a ? normalizeScore(d, a.score) : null;
+  });
+  const potential = SPIDER_DIMS.map((d,i) => {
+    const a = DB.assessments[d.key];
+    return a ? getPotentialNorm(d, a.score) : null;
+  });
+
+  const hasAny = current.some(v => v !== null);
+
+  // Draw rings (background)
+  const rings = [0.25, 0.5, 0.75, 1.0];
+  rings.forEach((r, ri) => {
+    ctx.beginPath();
+    for(let i=0; i<N; i++) {
+      const angle = (2*Math.PI*i/N) - Math.PI/2;
+      const x = cx + R * r * Math.cos(angle);
+      const y = cy + R * r * Math.sin(angle);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = ri===3 ? 'rgba(16,40,74,.2)' : 'rgba(16,40,74,.1)';
+    ctx.lineWidth = ri===3 ? 1.5 : 0.8;
+    ctx.stroke();
+    // Ring label
+    if(ri < 3) {
+      ctx.font = '9px Inter,sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,.3)';
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.round(r*100)+'%', cx, cy - R*r - 3);
+    }
+  });
+
+  // Draw axes
+  for(let i=0; i<N; i++) {
+    const angle = (2*Math.PI*i/N) - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R*Math.cos(angle), cy + R*Math.sin(angle));
+    ctx.strokeStyle = 'rgba(16,40,74,.15)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  // Draw POTENTIAL polygon
+  if((spiderMode==='potential'||spiderMode==='both') && hasAny) {
+    ctx.beginPath();
+    let first=true;
+    potential.forEach((v,i) => {
+      const val = v ?? 0.15;
+      const angle = (2*Math.PI*i/N) - Math.PI/2;
+      const x = cx + R*val*Math.cos(angle);
+      const y = cy + R*val*Math.sin(angle);
+      first ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      first=false;
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(40,168,144,.12)';
+    ctx.fill();
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = 'rgba(40,168,144,.6)';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Draw CURRENT polygon
+  if((spiderMode==='current'||spiderMode==='both') && hasAny) {
+    ctx.beginPath();
+    let first=true;
+    current.forEach((v,i) => {
+      const val = v ?? 0;
+      const angle = (2*Math.PI*i/N) - Math.PI/2;
+      const x = cx + R*val*Math.cos(angle);
+      const y = cy + R*val*Math.sin(angle);
+      first ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      first=false;
+    });
+    ctx.closePath();
+    // Color fill based on average
+    const avg = current.filter(v=>v!==null).reduce((a,b)=>a+b,0) / current.filter(v=>v!==null).length;
+    const fillColor = avg>=0.7 ? 'rgba(16,40,74,.22)' : avg>=0.5 ? 'rgba(196,134,10,.18)' : 'rgba(176,48,32,.18)';
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+    ctx.strokeStyle = avg>=0.7 ? '#10284A' : avg>=0.5 ? '#D49818' : '#B03020';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Data points
+    current.forEach((v,i) => {
+      if(v===null) return;
+      const angle = (2*Math.PI*i/N) - Math.PI/2;
+      const x = cx + R*v*Math.cos(angle);
+      const y = cy + R*v*Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x,y,4,0,2*Math.PI);
+      ctx.fillStyle = v>=0.7?'#10284A':v>=0.5?'#D49818':'#B03020';
+      ctx.fill();
+      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x,y,2,0,2*Math.PI); ctx.fill();
+    });
+  }
+
+  // Empty state marker
+  if(!hasAny) {
+    ctx.font = 'bold 13px Inter,sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.textAlign = 'center';
+    ctx.fillText('Noch keine Daten', cx, cy-8);
+    ctx.font = '11px Inter,sans-serif';
+    ctx.fillText('Assessments ausfüllen', cx, cy+10);
+  }
+
+  // Labels with icons
+  SPIDER_DIMS.forEach((d,i) => {
+    const angle = (2*Math.PI*i/N) - Math.PI/2;
+    const lx = cx + (R+22)*Math.cos(angle);
+    const ly = cy + (R+22)*Math.sin(angle);
+    const val = current[i];
+    const color = val===null ? '#7C909E' : val>=0.7 ? '#10284A' : val>=0.5 ? '#D49818' : '#B03020';
+
+    ctx.font = 'bold 9px Inter,sans-serif';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Icon
+    ctx.font = '12px sans-serif';
+    ctx.fillText(d.icon, lx, ly - 8);
+
+    // Label (handle newlines)
+    ctx.font = 'bold 8px Inter,sans-serif';
+    const lines = d.label.split('\n');
+    lines.forEach((line, li) => {
+      ctx.fillText(line, lx, ly + 4 + li*10);
+    });
+
+    // Score badge
+    if(val !== null) {
+      const scoreVal = DB.assessments[d.key]?.score;
+      ctx.font = '7px Inter,sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,.45)';
+      ctx.fillText(scoreVal+'/'+d.maxScore, lx, ly + (lines.length)*10 + 6);
+    }
+  });
+}
+
+// Potential bars
+function renderPotentialBars() {
+  const list = document.getElementById('potentialList');
+  if(!list) return;
+  const colors = {good:'#10284A', warn:'#D49818', risk:'#B03020'};
+  let html = '';
+  SPIDER_DIMS.forEach(d => {
+    const a = DB.assessments[d.key];
+    if(!a) return;
+    const curr = normalizeScore(d, a.score);
+    const pot = getPotentialNorm(d, a.score);
+    const delta = Math.round((pot - curr) * 100);
+    const level = curr>=0.7?'good':curr>=0.5?'warn':'risk';
+    const color = colors[level];
+    const potColor = '#28A890';
+    const name = SPIDER_DIMS.find(x=>x.key===d.key)?.label.replace('\n',' ') || d.key;
+    html += `<div class="pot-item">
+      <div class="pot-header">
+        <div class="pot-name" style="color:${color}">${d.icon} ${name}</div>
+        <div class="pot-nums" style="color:${color}">${a.score}/${d.maxScore} ${delta>0?'<span style="color:#28A890;font-weight:800">▲+'+delta+'%</span>':''}</div>
+      </div>
+      <div class="pot-track">
+        <div class="pot-potential" style="width:${Math.round(pot*100)}%;background:${potColor}"></div>
+        <div class="pot-current" style="width:${Math.round(curr*100)}%;background:${color}"></div>
+        ${delta>0?`<div class="pot-delta">+${delta}%</div>`:''}
+      </div>
+    </div>`;
+  });
+  if(!html) html = '<div style="font-size:.76rem;color:var(--text-3);text-align:center;padding:10px">Assessments ausfüllen um Potenzial zu sehen.</div>';
+  list.innerHTML = html;
+}
+
+// Show spider module on dashboard if has data
+function maybeShowSpider() {
+  const mod = document.getElementById('spiderModule');
+  if(!mod) return;
+  const hasDone = Object.keys(DB.assessments).length > 0;
+  mod.style.display = hasDone ? 'block' : 'none';
+  if(hasDone) {
+    setTimeout(() => { drawSpider('spiderCanvas', false); renderPotentialBars(); }, 100);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// DOCTOR REPORT RENDERER
+// ══════════════════════════════════════════════════
+function renderDoctorReport() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('drDate').textContent = dateStr;
+  document.getElementById('drFooterDate').textContent = dateStr;
+  document.getElementById('drPatient').textContent = (DB.user.name||'') + ' ' + (DB.user.surname||'') + ', ' + (DB.user.age||'?') + ' J.';
+
+  // 1. Status Grid
+  const statusItems = [
+    { key:'barthel', label:'Selbstversorgung', icon:'🦾' },
+    { key:'falls', label:'Sturzrisiko', icon:'⚠️' },
+    { key:'mini_cog', label:'Kognition', icon:'🧠' },
+    { key:'gds', label:'Stimmung', icon:'💛' },
+    { key:'mna', label:'Ernährung', icon:'🥗' },
+    { key:'loneliness', label:'Soziales', icon:'👥' },
+    { key:'pain', label:'Schmerz', icon:'💊' },
+    { key:'braden', label:'Dekubitus', icon:'🛏️' },
+  ];
+  const sgrid = document.getElementById('drStatusGrid');
+  if(sgrid) {
+    sgrid.innerHTML = statusItems.map(si => {
+      const a = DB.assessments[si.key];
+      if(!a) return `<div class="status-block sb-neutral"><div class="sb-label">${si.icon} ${si.label}</div><div class="sb-val">–</div><div class="sb-sub">Noch nicht erfasst</div></div>`;
+      const dim = SPIDER_DIMS.find(d=>d.key===si.key);
+      const norm = normalizeScore(dim, a.score);
+      const cls = norm>=0.7?'sb-good':norm>=0.5?'sb-warn':'sb-risk';
+      const assess = ASSESSMENTS[si.key];
+      const interp = assess?.interpret(a.score);
+      return `<div class="status-block ${cls}">
+        <div class="sb-label">${si.icon} ${si.label}</div>
+        <div class="sb-val">${a.score}/${assess?.maxScore||'?'}</div>
+        <div class="sb-sub">${interp?.label?.split('–')[0].trim()||'–'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Spider for report
+  setTimeout(() => drawSpider('spiderCanvasDoc', true), 150);
+
+  // 2. Risks
+  const risksBody = document.getElementById('drRisksBody');
+  if(risksBody) {
+    const riskItems = [];
+    Object.entries(DB.assessments).forEach(([id, d]) => {
+      const a = ASSESSMENTS[id]; if(!a) return;
+      const dim = SPIDER_DIMS.find(x=>x.key===id);
+      const norm = dim ? normalizeScore(dim, d.score) : 0.5;
+      const interp = a.interpret(d.score);
+      const cls = norm>=0.7?'rc-good':norm>=0.5?'rc-warn':'rc-risk';
+      const ico = norm>=0.7?'✅':norm>=0.5?'⚠️':'🚨';
+      riskItems.push(`<div class="risk-card-rep ${cls}">
+        <div class="rcr-ico">${ico}</div>
+        <div>
+          <div class="rcr-title">${a.icon||''} ${a.name}: ${d.score}/${a.maxScore}</div>
+          <div class="rcr-sub">${interp.label}</div>
+        </div>
+      </div>`);
+    });
+    risksBody.innerHTML = riskItems.length ? riskItems.join('') : '<div style="font-size:.76rem;color:var(--text-3)">Keine Assessments vorhanden.</div>';
+  }
+
+  // 3. Potentials
+  const potBody = document.getElementById('drPotBody');
+  if(potBody) {
+    const pots = [];
+    SPIDER_DIMS.forEach(d => {
+      const a = DB.assessments[d.key]; if(!a) return;
+      const curr = normalizeScore(d, a.score);
+      const pot = getPotentialNorm(d, a.score);
+      const delta = Math.round((pot - curr)*100);
+      if(delta <= 0) return;
+      const name = d.label.replace('\n', ' ');
+      const recs = getRecommendations(d.key, a.score);
+      pots.push(`<div class="pot-rep-item">
+        <div class="pri-ico">${d.icon}</div>
+        <div class="pri-text">
+          <div class="pri-title">${name}: aktuell ${Math.round(curr*100)}% → Potenzial ${Math.round(pot*100)}%</div>
+          <div class="pri-desc">${recs[0]||'Gezielte Maßnahmen möglich'}</div>
+          <div class="pri-impact">▲ Verbesserungspotenzial: +${delta} Prozentpunkte in 90 Tagen</div>
+        </div>
+      </div>`);
+    });
+    potBody.innerHTML = pots.length ? pots.join('') : '<div style="font-size:.76rem;color:var(--text-3)">Keine signifikanten Potenziale gefunden oder noch keine Assessments.</div>';
+  }
+
+  // 4. Detail
+  const detailBody = document.getElementById('drDetailBody');
+  if(detailBody) {
+    let html = '';
+    Object.entries(DB.assessments).forEach(([id,d]) => {
+      const a = ASSESSMENTS[id]; if(!a) return;
+      const interp = a.interpret(d.score);
+      html += `<div style="background:var(--sand);border-radius:var(--r-sm);padding:11px 13px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <div style="font-size:.8rem;font-weight:700;color:var(--text)">${a.icon||''} ${a.name}</div>
+          <span class="tag t${interp.tag?.[1]||'b'}">${d.score}/${a.maxScore}</span>
+        </div>
+        <div style="font-size:.7rem;color:var(--text-2);margin-bottom:4px">${interp.label}</div>
+        <div style="font-size:.65rem;color:var(--text-3)">Erfasst: ${new Date(d.date).toLocaleDateString('de-DE')} · ${a.source||''}</div>
+      </div>`;
+    });
+    detailBody.innerHTML = html || '<div style="font-size:.76rem;color:var(--text-3)">Noch keine Assessments.</div>';
+  }
+
+  // 5. PRO
+  const proBody = document.getElementById('drProBody');
+  if(proBody && Object.keys(DB.pro).length > 0) {
+    const proLabels = {mob:'Beweglichkeit',self:'Selbstversorgung',act:'Tätigkeiten',pain:'Schmerz/Beschwerden',anx:'Angst/Stimmung',glob:'Globale Gesundheit',ment:'Geistige Gesundheit',vas:'Gesundheits-Thermometer (VAS)'};
+    const proDesc = {
+      1:'Keine Probleme / Ausgezeichnet', 2:'Einige Probleme / Gut', 3:'Erhebliche Probleme / Schlecht',
+      4:'Sehr gut', 5:'Ausgezeichnet'
+    };
+    let html = '<div style="font-size:.72rem;color:var(--text-2);margin-bottom:10px;font-style:italic">Selbsteinschätzung durch die betreute Person (Patient Reported Outcome)</div>';
+    Object.entries(DB.pro).forEach(([k,v]) => {
+      if(k==='savedAt') return;
+      html += `<div class="rc-row" style="padding:7px 0;border-bottom:1px solid var(--sand-dk)">
+        <div class="rc-lbl">${proLabels[k]||k}</div>
+        <div class="rc-val">${k==='vas'?v+'/100':(proDesc[v]||v)}</div>
+      </div>`;
+    });
+    proBody.innerHTML = html;
+  } else if(proBody) {
+    proBody.innerHTML = '<div style="font-size:.76rem;color:var(--text-3)">PRO noch nicht ausgefüllt.</div>';
+  }
+
+  // 6. Recommendations
+  const recsBody = document.getElementById('drRecsBody');
+  if(recsBody) {
+    const allRecs = [];
+    const priorities = { risk: [], warn: [], good: [] };
+    Object.entries(DB.assessments).forEach(([id,d]) => {
+      const a = ASSESSMENTS[id]; if(!a) return;
+      const dim = SPIDER_DIMS.find(x=>x.key===id);
+      const norm = dim ? normalizeScore(dim, d.score) : 0.5;
+      const level = norm < 0.5 ? 'risk' : norm < 0.7 ? 'warn' : 'good';
+      getRecommendations(id, d.score).forEach(r => priorities[level].push({ico:a.icon||'→', text:r, level}));
+    });
+    const ico = {risk:'🚨',warn:'⚠️',good:'✅'};
+    const color = {risk:'var(--danger)',warn:'var(--amber)',good:'var(--moss)'};
+    let html = '';
+    ['risk','warn','good'].forEach(level => {
+      if(!priorities[level].length) return;
+      html += `<div style="font-size:.65rem;font-weight:700;color:${color[level]};text-transform:uppercase;letter-spacing:.05em;margin:10px 0 6px;padding-top:8px;border-top:1px solid var(--sand-dk)">${ico[level]} ${level==='risk'?'Dringend':level==='warn'?'Empfohlen':'Erhaltend'}</div>`;
+      priorities[level].forEach(r => {
+        html += `<div style="font-size:.75rem;color:var(--text);display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--sand-dk)"><span style="color:${color[level]};font-weight:800;flex-shrink:0">${r.ico}</span>${r.text}</div>`;
+      });
+    });
+    recsBody.innerHTML = html || '<div style="font-size:.76rem;color:var(--text-3)">Keine Empfehlungen – Assessments ausfüllen.</div>';
+  }
+}
+
+function toggleRepSection(head) {
+  head.classList.toggle('open');
+  const body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function printDoctorReport() {
+  window.print();
+  showToast('🖨️ Druckdialog geöffnet');
+}
+
+function shareDoctorReport() {
+  if(navigator.share) {
+    navigator.share({ title: 'care4you Arztbericht', url: 'https://care4youapp.com', text: 'Mein Pflegebericht von care4you' }).catch(()=>{});
+  } else {
+    showToast('📋 Link kopiert: care4youapp.com');
+    navigator.clipboard?.writeText('https://care4youapp.com').catch(()=>{});
+  }
+}
+
+function downloadDocReport() {
+  const data = {
+    generated: new Date().toISOString(),
+    patient: DB.user,
+    assessments: DB.assessments,
+    pro: DB.pro,
+    source: 'care4youapp.com',
+    disclaimer: 'care4you ist kein Medizinprodukt. Hilfe zur Selbsthilfe.'
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url;
+  a.download='care4you_arztbericht_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  showToast('📥 Bericht heruntergeladen');
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+renderDashboard();
+// Restore PRO data
+if(DB.pro) {
+  Object.entries(DB.pro).forEach(([k,v]) => {
+    if(k==='savedAt') return;
+    const el = document.getElementById('pro-'+k+'-score');
+    if(el) el.textContent = v;
+  });
+  if(DB.pro.vas) {
+    const s=document.getElementById('vasSlider'); if(s) s.value=DB.pro.vas;
+    const d=document.getElementById('vasDisplay'); if(d) d.textContent=DB.pro.vas;
+  }
+}
+</script>
+</body>
+</html>

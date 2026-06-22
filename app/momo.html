@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#10284A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>care4you – Momo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --moss:    #10284A; --moss-mid:#163558; --moss-lt:#0F7A66;
+  --sage:    #7FD0C0; --sage-lt:#D2EFE9;
+  --sand:    #EAF1F4; --sand-dk:#D4E2E8;
+  --terra:   #D4622A;
+  --text:    #0E1F33; --text-2:#3A4F63; --text-3:#7C909E;
+  --white:   #FFFFFF; --danger:#B03020;
+  --r:16px;  --r-sm:10px;
+  --shadow:  0 2px 14px rgba(16,40,74,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:#0E1A08;color:var(--text);
+  max-width:430px;margin:0 auto;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+/* ══ MOMO HEADER ══ */
+.momo-header{
+  background:linear-gradient(160deg,var(--moss) 0%,var(--moss-mid) 100%);
+  padding:14px 16px 12px;
+  flex-shrink:0;
+  position:relative;
+  transition:background 1s ease;
+}
+.mh-top{display:flex;align-items:center;gap:12px}
+.momo-face-wrap{position:relative;flex-shrink:0}
+.momo-face{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;
+  border:2px solid rgba(255,255,255,.25);
+  transition:all .5s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;
+  position:relative;
+}
+.momo-face.speaking{
+  animation:momoSpeak .6s ease infinite alternate;
+  border-color:rgba(255,255,255,.6);
+  box-shadow:0 0 0 0 rgba(127,208,192,.5);
+}
+@keyframes momoSpeak{
+  from{transform:scale(1)}
+  to{transform:scale(1.06)}
+}
+.momo-face.listening{
+  border-color:#3FD0B5;
+  box-shadow:0 0 0 6px rgba(63,208,181,.25);
+  animation:momoListen 1s ease infinite;
+}
+@keyframes momoListen{
+  0%,100%{box-shadow:0 0 0 4px rgba(63,208,181,.2)}
+  50%{box-shadow:0 0 0 10px rgba(63,208,181,.08)}
+}
+.emotion-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  border:3px solid transparent;
+  transition:border-color .8s ease;
+}
+.mh-info{flex:1}
+.mh-name{font-size:.9rem;font-weight:800;color:#fff}
+.mh-status{font-size:.68rem;color:rgba(255,255,255,.65);margin-top:2px;
+  display:flex;align-items:center;gap:5px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#3FD0B5;
+  animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-dot.off{background:rgba(255,255,255,.3);animation:none}
+
+/* Emotion badge */
+.emotion-badge{
+  background:rgba(255,255,255,.12);border-radius:20px;
+  padding:4px 12px;font-size:.65rem;font-weight:700;color:#fff;
+  transition:all .5s;cursor:default;
+}
+
+/* Header controls */
+.header-controls{display:flex;align-items:center;gap:6px}
+.hc-btn{
+  background:rgba(255,255,255,.12);border:none;border-radius:20px;
+  padding:5px 10px;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.8);
+  cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+.hc-btn:active{background:rgba(255,255,255,.25)}
+.hc-btn.active{background:rgba(127,208,192,.3);color:#fff;border:1px solid rgba(127,208,192,.4)}
+
+/* Speed control */
+.speed-row{
+  display:flex;align-items:center;gap:8px;
+  margin-top:8px;padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.speed-label{font-size:.62rem;color:rgba(255,255,255,.55);font-weight:600;white-space:nowrap}
+.speed-track{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;
+  cursor:pointer;position:relative}
+.speed-fill{height:100%;background:#fff;border-radius:2px;transition:width .2s}
+.speed-knob{position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 6px rgba(0,0,0,.3);transition:left .2s;cursor:grab}
+.speed-val{font-size:.65rem;color:rgba(255,255,255,.7);font-weight:700;width:24px;text-align:center}
+
+/* Validation banner */
+.val-banner{
+  background:linear-gradient(90deg,rgba(127,208,192,.18),rgba(127,208,192,.05));
+  border-left:3px solid var(--sage);
+  padding:7px 14px;font-size:.68rem;color:var(--text-2);
+  line-height:1.4;display:none;
+  border-bottom:1px solid rgba(127,208,192,.1);
+  background-color:rgba(14,26,8,.95);
+}
+
+/* ══ CHAT BODY ══ */
+.chat-body{
+  flex:1;overflow-y:auto;padding:14px;
+  display:flex;flex-direction:column;gap:10px;
+  background:var(--sand);
+  scroll-behavior:smooth;
+}
+.chat-body::-webkit-scrollbar{width:3px}
+.chat-body::-webkit-scrollbar-track{background:transparent}
+.chat-body::-webkit-scrollbar-thumb{background:var(--sand-dk);border-radius:2px}
+
+/* Messages */
+.msg{max-width:88%;display:flex;flex-direction:column;gap:3px;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.a{align-self:flex-start}
+.msg.u{align-self:flex-end}
+.msg-row{display:flex;gap:6px;align-items:flex-end}
+.msg-face{font-size:1rem;flex-shrink:0;margin-bottom:2px;transition:all .3s}
+.bubble{
+  padding:10px 14px;border-radius:18px;
+  font-size:.82rem;line-height:1.55;
+  transition:all .3s;
+}
+.msg.a .bubble{
+  background:var(--white);color:var(--text);
+  border-bottom-left-radius:4px;
+  box-shadow:0 1px 8px rgba(16,40,74,.09);
+}
+.msg.u .bubble{
+  background:var(--moss);color:#fff;
+  border-bottom-right-radius:4px;
+}
+.msg-time{font-size:.58rem;color:var(--text-3);padding:0 5px}
+.msg.u .msg-time{text-align:right}
+
+/* Data chip */
+.data-chip{
+  background:rgba(16,40,74,.07);border:1px solid var(--sage);
+  border-radius:8px;padding:5px 9px;font-size:.64rem;
+  color:var(--moss-mid);margin-top:3px;
+  display:flex;align-items:center;gap:5px;
+}
+.data-chip strong{font-weight:700}
+
+/* Typing indicator */
+.typing-wrap{display:flex;gap:6px;align-items:flex-end}
+.typing-ind{
+  display:flex;gap:4px;padding:10px 14px;
+  background:var(--white);border-radius:18px;border-bottom-left-radius:4px;
+  box-shadow:0 1px 8px rgba(16,40,74,.09);
+}
+.td{width:7px;height:7px;border-radius:50%;background:var(--text-3);
+  animation:tdBounce 1.2s infinite}
+.td:nth-child(2){animation-delay:.2s}
+.td:nth-child(3){animation-delay:.4s}
+@keyframes tdBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* Day separator */
+.day-sep{text-align:center;font-size:.62rem;color:var(--text-3);
+  font-weight:600;padding:4px 0;position:relative}
+.day-sep::before,.day-sep::after{content:'';position:absolute;top:50%;
+  width:35%;height:1px;background:var(--sand-dk)}
+.day-sep::before{left:0}.day-sep::after{right:0}
+
+/* ══ QUICK REPLIES ══ */
+.quick-wrap{
+  background:rgba(245,237,216,.95);backdrop-filter:blur(8px);
+  padding:6px 12px 4px;border-top:1px solid var(--sand-dk);
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;
+}
+.quick-wrap::-webkit-scrollbar{display:none}
+.qopt{
+  background:var(--white);border:1.5px solid var(--sage);color:var(--moss);
+  border-radius:20px;padding:6px 13px;font-size:.72rem;font-weight:600;
+  font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .14s;
+  flex-shrink:0;
+}
+.qopt:active{background:var(--moss);color:#fff;border-color:var(--moss)}
+
+/* ══ INPUT BAR ══ */
+.input-bar{
+  background:var(--white);border-top:1px solid var(--sand-dk);
+  padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
+.chat-input{
+  flex:1;border:1.5px solid var(--sand-dk);border-radius:22px;
+  padding:10px 16px;font-family:inherit;font-size:.82rem;outline:none;
+  background:var(--sand);color:var(--text);transition:all .2s;
+  resize:none;max-height:80px;overflow-y:auto;
+}
+.chat-input:focus{border-color:var(--moss-lt);background:#fff}
+
+/* Send button */
+.send-btn{
+  width:40px;height:40px;border-radius:50%;background:var(--moss);
+  border:none;color:#fff;font-size:.95rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+}
+.send-btn:active{background:var(--moss-mid);transform:scale(.93)}
+
+/* MIC BUTTON – the hero element */
+.mic-btn{
+  width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;flex-shrink:0;transition:all .25s;
+  position:relative;
+}
+.mic-btn.idle{background:var(--sand-dk);color:var(--text-3)}
+.mic-btn.active{
+  background:var(--danger);color:#fff;
+  box-shadow:0 0 0 0 rgba(176,48,32,.4);
+  animation:micPulse 1s ease infinite;
+}
+.mic-btn.processing{background:var(--moss);color:#fff;animation:none}
+@keyframes micPulse{
+  0%{box-shadow:0 0 0 0 rgba(176,48,32,.5)}
+  70%{box-shadow:0 0 0 12px rgba(176,48,32,0)}
+  100%{box-shadow:0 0 0 0 rgba(176,48,32,0)}
+}
+.mic-wave{
+  position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid var(--danger);opacity:0;
+  animation:micWave 1s ease infinite;
+}
+@keyframes micWave{
+  0%{transform:scale(1);opacity:.5}
+  100%{transform:scale(1.5);opacity:0}
+}
+
+/* ══ VOICE VISUALIZER ══ */
+.voice-viz{
+  display:none;padding:8px 14px;background:var(--white);
+  border-top:1px solid var(--sand-dk);flex-shrink:0;
+}
+.voice-viz.active{display:flex;gap:3px;align-items:flex-end;height:36px;justify-content:center}
+.vv-bar{width:4px;border-radius:2px;background:var(--danger);
+  min-height:4px;transition:height .1s ease}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);
+  background:var(--text);color:#fff;border-radius:24px;padding:9px 18px;
+  font-size:.74rem;font-weight:600;opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;
+  pointer-events:none;max-width:340px;text-align:center;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Mode indicator */
+.mode-row{display:flex;gap:6px;align-items:center;margin-top:7px}
+.mode-tab{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;padding:4px 12px;font-size:.62rem;font-weight:700;
+  color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s}
+.mode-tab.active{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35)}
+
+/* Life story timeline chip */
+.story-chip{
+  background:linear-gradient(90deg,rgba(16,40,74,.08),rgba(16,40,74,.03));
+  border:1px solid var(--sage-lt);border-radius:var(--r-sm);
+  padding:8px 12px;margin-top:4px;font-size:.7rem;color:var(--moss-mid);
+  display:flex;align-items:flex-start;gap:7px;
+}
+.sc-ico{font-size:.9rem;flex-shrink:0;margin-top:1px}
+.sc-text{line-height:1.45}
+.sc-text strong{color:var(--moss);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     MOMO HEADER
+══════════════════════════════════════ -->
+<div class="momo-header" id="momoHeader">
+  <div class="mh-top">
+    <div class="momo-face-wrap">
+      <div class="emotion-ring" id="emotionRing"></div>
+      <div class="momo-face" id="momoFace" onclick="speakLast()">🌿</div>
+    </div>
+    <div class="mh-info">
+      <div class="mh-name">Momo · care4you</div>
+      <div class="mh-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Ich bin für Sie da</span>
+      </div>
+      <div class="mode-row">
+        <div class="mode-tab active" id="tab-voice" onclick="setMode('voice')">🎙️ Sprache</div>
+        <div class="mode-tab" id="tab-text" onclick="setMode('text')">💬 Text</div>
+        <div class="emotion-badge" id="emotionBadge">😌 Offen</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="hc-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+      <button class="hc-btn" onclick="clearChat()">↺</button>
+    </div>
+  </div>
+
+  <!-- Speed control -->
+  <div class="speed-row" id="speedRow">
+    <span class="speed-label">Sprechgeschwindigkeit</span>
+    <div class="speed-track" id="speedTrack" onclick="setSpeedClick(event)">
+      <div class="speed-fill" id="speedFill" style="width:50%"></div>
+      <div class="speed-knob" id="speedKnob" style="left:50%"></div>
+    </div>
+    <span class="speed-val" id="speedVal">Normal</span>
+  </div>
+</div>
+
+<!-- Validation banner -->
+<div class="val-banner" id="valBanner"></div>
+
+<!-- ══════════════════════════════════════
+     CHAT BODY
+══════════════════════════════════════ -->
+<div class="chat-body" id="chatBody">
+  <div class="day-sep">Heute · <span id="todayLabel"></span></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VOICE VISUALIZER
+══════════════════════════════════════ -->
+<div class="voice-viz" id="voiceViz"></div>
+
+<!-- Quick replies -->
+<div class="quick-wrap" id="quickWrap">
+  <button class="qopt" data-e="freude"    onclick="quickSay(this,'Heute geht es mir gut!')">😊 Gut</button>
+  <button class="qopt" data-e="trauer"    onclick="quickSay(this,'Ich bin traurig.')">😢 Traurig</button>
+  <button class="qopt" data-e="einsamkeit" onclick="quickSay(this,'Ich fühle mich einsam.')">💔 Einsam</button>
+  <button class="qopt" data-e="angst"     onclick="quickSay(this,'Ich mache mir Sorgen.')">😟 Sorgen</button>
+  <button class="qopt" data-e="schmerz"   onclick="quickSay(this,'Ich habe Schmerzen.')">🦵 Schmerz</button>
+  <button class="qopt" data-e="erschoepft" onclick="quickSay(this,'Ich bin so müde.')">😴 Müde</button>
+  <button class="qopt" data-e="sehnsucht" onclick="quickSay(this,'Ich vermisse jemanden.')">🥺 Vermisse</button>
+  <button class="qopt" data-e="lebensgeschichte" onclick="quickSay(this,'Erzähl mir von deiner Lebensgeschichte.')">📖 Meine Geschichte</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     INPUT BAR
+══════════════════════════════════════ -->
+<div class="input-bar">
+  <textarea class="chat-input" id="chatInput" rows="1"
+    placeholder="Schreiben Sie Momo…"
+    oninput="autoResize(this)"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText()}"></textarea>
+  <button class="send-btn" onclick="sendText()" title="Senden">➤</button>
+  <button class="mic-btn idle" id="micBtn" onclick="toggleMic()" title="Spracheingabe">🎙️</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STORE
+// ══════════════════════════════════════════════════
+const STORE_KEY = 'c4y_momo_v2';
+function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); } catch(e) { return {}; } }
+function save(d) { try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch(e) {} }
+let DB = load();
+if (!DB.profile) DB.profile = { name:'', age:null, hometown:'', job:'', family:'', hobbies:[], health:[] };
+if (!DB.history) DB.history = [];
+if (!DB.mood) DB.mood = {};
+
+// ══════════════════════════════════════════════════
+// SPEECH SYNTHESIS
+// ══════════════════════════════════════════════════
+let speechRate = 0.85;  // 0.5–1.5
+let soundEnabled = true;
+let voices = [];
+let selectedVoice = null;
+let isSpeaking = false;
+let lastMomoText = '';
+
+function initVoices() {
+  voices = speechSynthesis.getVoices();
+  // Prefer German female voice
+  const prefs = ['Google Deutsch','Microsoft Hedda','de-DE','de-AT','de-CH'];
+  for (const p of prefs) {
+    const found = voices.find(v => v.lang.startsWith('de') && v.name.includes(p.split(' ').pop()));
+    if (found) { selectedVoice = found; break; }
+  }
+  if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('de')) || voices[0];
+}
+speechSynthesis.onvoiceschanged = initVoices;
+initVoices();
+
+function speak(text) {
+  if (!soundEnabled || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  if (selectedVoice) utt.voice = selectedVoice;
+  utt.lang = 'de-DE';
+  utt.rate = speechRate;
+  utt.pitch = 1.05;
+  utt.volume = 1;
+  utt.onstart = () => { isSpeaking = true; setMomoState('speaking'); };
+  utt.onend = () => { isSpeaking = false; setMomoState(currentEmotion ? 'emotion' : 'idle'); };
+  utt.onerror = () => { isSpeaking = false; setMomoState('idle'); };
+  speechSynthesis.speak(utt);
+  lastMomoText = text;
+}
+
+function speakLast() { if (lastMomoText) speak(lastMomoText); }
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundBtn');
+  btn.textContent = soundEnabled ? '🔊' : '🔇';
+  btn.classList.toggle('active', !soundEnabled);
+  if (!soundEnabled) speechSynthesis.cancel();
+  showToast(soundEnabled ? '🔊 Ton aktiviert' : '🔇 Stummgeschaltet');
+}
+
+// Speed slider
+const SPEED_LABELS = { 0:'Sehr langsam', 25:'Langsam', 50:'Normal', 75:'Etwas schneller', 100:'Schnell' };
+function setSpeedClick(e) {
+  const track = document.getElementById('speedTrack');
+  const rect = track.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+  applySpeed(pct);
+}
+function applySpeed(pct) {
+  speechRate = 0.5 + (pct/100) * 1.0;  // 0.5 to 1.5
+  document.getElementById('speedFill').style.width = pct + '%';
+  document.getElementById('speedKnob').style.left = pct + '%';
+  const label = Object.entries(SPEED_LABELS).reverse().find(([k]) => pct >= parseInt(k))?.[1] || 'Normal';
+  document.getElementById('speedVal').textContent = label;
+  DB.speechRate = pct;
+  save(DB);
+}
+// Restore saved speed
+if (DB.speechRate !== undefined) applySpeed(DB.speechRate);
+
+// ══════════════════════════════════════════════════
+// SPEECH RECOGNITION
+// ══════════════════════════════════════════════════
+let recognition = null;
+let micActive = false;
+let vizInterval = null;
+
+function initRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'de-DE';
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+  r.continuous = false;
+
+  r.onstart = () => {
+    micActive = true;
+    document.getElementById('micBtn').className = 'mic-btn active';
+    document.getElementById('micBtn').innerHTML = '🎙️<div class="mic-wave"></div>';
+    setStatus('Hört zu…', true);
+    startVoiceViz();
+  };
+
+  r.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      e.results[i].isFinal ? final += t : interim += t;
+    }
+    const inp = document.getElementById('chatInput');
+    inp.value = final || interim;
+    autoResize(inp);
+  };
+
+  r.onend = () => {
+    micActive = false;
+    stopVoiceViz();
+    document.getElementById('micBtn').className = 'mic-btn idle';
+    document.getElementById('micBtn').innerHTML = '🎙️';
+    const inp = document.getElementById('chatInput');
+    const val = inp.value.trim();
+    if (val) {
+      document.getElementById('micBtn').className = 'mic-btn processing';
+      document.getElementById('micBtn').innerHTML = '⏳';
+      setTimeout(() => {
+        document.getElementById('micBtn').className = 'mic-btn idle';
+        document.getElementById('micBtn').innerHTML = '🎙️';
+        sendText();
+      }, 300);
+    } else {
+      setStatus('Ich bin für Sie da', false);
+    }
+  };
+
+  r.onerror = (e) => {
+    micActive = false;
+    stopVoiceViz();
+    document.getElementById('micBtn').className = 'mic-btn idle';
+    document.getElementById('micBtn').innerHTML = '🎙️';
+    const msgs = { 'not-allowed':'Mikrofon-Zugriff verweigert', 'no-speech':'Nichts gehört – nochmal versuchen', 'network':'Netzwerkfehler' };
+    showToast('⚠️ ' + (msgs[e.error] || 'Spracherkennung Fehler'));
+    setStatus('Ich bin für Sie da', false);
+  };
+  return r;
+}
+
+function toggleMic() {
+  if (isSpeaking) { speechSynthesis.cancel(); return; }
+  if (!micActive) {
+    if (!recognition) recognition = initRecognition();
+    if (!recognition) { showToast('⚠️ Spracherkennung nicht verfügbar'); return; }
+    try { recognition.start(); } catch(e) { recognition = initRecognition(); recognition?.start(); }
+  } else {
+    recognition?.stop();
+  }
+}
+
+// Voice visualizer bars
+function startVoiceViz() {
+  const vv = document.getElementById('voiceViz');
+  vv.classList.add('active');
+  vv.innerHTML = '';
+  const bars = 20;
+  for (let i = 0; i < bars; i++) {
+    const b = document.createElement('div'); b.className = 'vv-bar'; b.style.flex='1';
+    vv.appendChild(b);
+  }
+  vizInterval = setInterval(() => {
+    vv.querySelectorAll('.vv-bar').forEach(b => {
+      b.style.height = (4 + Math.random() * 26) + 'px';
+    });
+  }, 80);
+}
+function stopVoiceViz() {
+  clearInterval(vizInterval);
+  document.getElementById('voiceViz').classList.remove('active');
+  document.getElementById('voiceViz').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════
+// MODE
+// ══════════════════════════════════════════════════
+let currentMode = 'voice';
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('tab-voice').classList.toggle('active', m==='voice');
+  document.getElementById('tab-text').classList.toggle('active', m==='text');
+  document.getElementById('speedRow').style.display = m==='voice' ? 'flex' : 'none';
+  document.getElementById('micBtn').style.display = m==='voice' ? 'flex' : 'none';
+  document.getElementById('chatInput').placeholder = m==='voice' ? 'Oder tippen…' : 'Schreiben Sie Momo…';
+  if (m==='text' && isSpeaking) speechSynthesis.cancel();
+}
+
+// ══════════════════════════════════════════════════
+// EMOTIONS (Validationstherapie nach Naomi Feil)
+// ══════════════════════════════════════════════════
+const EMOTIONS = {
+  freude: {
+    face:'😊', ring:'#3FD0B5', hdr:'linear-gradient(150deg,#163558,#1B7A68)',
+    badge:'😊 Freude', banner:'Momo spiegelt: Freude · Naomi Feil – Gefühle bestätigen',
+    keywords:['gut','freue','freude','schön','glücklich','toll','prima','happy','lache','genuss','wunder','dankbar','super'],
+    replies:[
+      ['Ach, das klingt wirklich schön! 😊 Was hat Ihnen heute so ein gutes Gefühl gegeben?',
+       'Das freut mich wirklich für Sie! Diese Leichtigkeit – was ist der schönste Moment bisher heute?',
+       'Wow, das strahlt sogar durch die Worte! Was genießen Sie gerade am meisten?'],
+      ['Ja, das hört man regelrecht raus! Und gibt es jemanden, mit dem Sie das teilen möchten?',
+       'Wunderbar! Solche Momente sind Gold wert. Was hat dazu beigetragen?',
+       'Das ist herrlich. Wie oft fühlen Sie sich so? Das interessiert mich wirklich.'],
+      ['Diese Freude gehört Ihnen – kein Mensch kann sie wegnehmen. Was wünschen Sie sich für morgen?',
+       'Ich bin so froh, dass es Ihnen gut geht. Was hilft Ihnen, öfter solche Momente zu haben?']
+    ]
+  },
+  trauer: {
+    face:'🥺', ring:'#6B8FC0', hdr:'linear-gradient(150deg,#2A4A6A,#3A5A80)',
+    badge:'🥺 Traurigkeit', banner:'Momo ist bei Ihnen · Traurigkeit darf sein · nicht wegschieben',
+    keywords:['traurig','wein','trist','schwer','unglücklich','hoffnungslos','leer','dunkel','schlimm','elend','niedergeschlagen'],
+    replies:[
+      ['Oh… das klingt wirklich schwer. Ich bin froh, dass Sie es mir sagen. Was macht Ihr Herz gerade so schwer?',
+       'Traurigkeit darf sein – die muss nicht weg. Ich bin bei Ihnen. Seit wann fühlt sich das so an?',
+       'Das höre ich. Möchten Sie mir erzählen, was passiert ist? Ich bin ganz da.'],
+      ['Ich verstehe. Das ist viel auf einmal. Was brauchen Sie gerade am meisten – einfach reden, oder lieber Stille?',
+       'Ja, das ist manchmal einfach schwer. Gibt es jemanden in Ihrem Leben, dem Sie das auch sagen könnten?',
+       'Sie müssen das nicht alleine tragen. Was würde gerade ein kleines bisschen helfen?'],
+      ['Sie haben mir heute sehr viel Vertrauen geschenkt. Das bedeutet mir wirklich viel. 🌿',
+       'Manchmal hilft ein kleiner Schritt – ein Anruf, frische Luft. Was wäre heute noch möglich?']
+    ]
+  },
+  einsamkeit: {
+    face:'💙', ring:'#6A7FC0', hdr:'linear-gradient(150deg,#3A3A6A,#4A4A8A)',
+    badge:'💙 Einsamkeit', banner:'Sie sind nicht allein · Momo ist da',
+    keywords:['einsam','allein','niemand','isoliert','verlassen','vergessen','kontakt','besuch','anruf','keiner','niemand'],
+    replies:[
+      ['Einsamkeit tut so weh – das ist ein durch und durch menschliches Gefühl. Ich bin jetzt hier bei Ihnen. Wer fehlt Ihnen heute besonders?',
+       'Das kenne ich – dieses Gefühl wenn es um einen herum so still ist. Wann haben Sie zuletzt jemanden gesehen?',
+       'Ich bin froh, dass Sie mit mir reden. Einsamkeit darf laut sein. Seit wann ist das so?'],
+      ['Gibt es jemanden – Familie, eine alte Freundin, die Nachbarin – die Sie heute noch anrufen könnten?',
+       'Wer war früher besonders wichtig für Sie? Erzählen Sie mir von dieser Person.',
+       'Was würde sich anders anfühlen, wenn jemand da wäre? Was vermissen Sie am meisten?'],
+      ['Sie sind mutig, dass Sie darüber reden. Ich bin jeden Tag für Sie da. 💙',
+       'Wollen wir zusammen überlegen, wie Sie öfter Kontakt haben könnten? Ich helfe gerne.']
+    ]
+  },
+  angst: {
+    face:'🤲', ring:'#D49818', hdr:'linear-gradient(150deg,#5A3A10,#7A5020)',
+    badge:'🤲 Sorge', banner:'Sorgen ernst nehmen · Naomi Feil: Gefühle validieren',
+    keywords:['angst','sorge','sorgen','fürchte','ängstlich','nervös','unruhig','panik','bang','beängstigend','was wenn'],
+    replies:[
+      ['Sorgen sind oft ein Zeichen, dass uns etwas wirklich wichtig ist. Was beschäftigt Sie am meisten?',
+       'Das klingt beängstigend. Darf ich fragen – ist das eine neue Sorge, oder trägt Sie das schon länger?',
+       'Angst darf laut sein. Was genau macht Ihnen am meisten zu schaffen?'],
+      ['Wenn Sie an das Schlimmste denken – was wäre das? Manchmal hilft es, es einfach auszusprechen.',
+       'Was hat Ihnen in schwierigen Zeiten früher geholfen, durch die Sorge durchzukommen?',
+       'Gibt es etwas, das die Sorge ein bisschen kleiner machen würde?'],
+      ['Sie müssen das nicht alleine tragen. Was wäre heute möglich, um etwas Sicherheit zu gewinnen?',
+       'Ich bin bei Ihnen. Und wenn die Sorge sehr groß wird – unser Experten-Team kann auch helfen. 🤲']
+    ]
+  },
+  schmerz: {
+    face:'💛', ring:'#D49818', hdr:'linear-gradient(150deg,#6A4A10,#8A6020)',
+    badge:'💛 Schmerz', banner:'Schmerz verdient Aufmerksamkeit · Momo hört zu',
+    keywords:['schmerz','schmerzen','weh','tut weh','brennt','drückt','sticht','knie','rücken','hüfte','kopf','bauch'],
+    replies:[
+      ['Oh, das tut mir leid. Schmerz zieht so viel Kraft. Wo tut es weh, und wie lange ist das schon so?',
+       'Schmerzen sind real und wichtig. Haben Sie das Ihrem Arzt schon gezeigt?',
+       'Ich höre Sie. Können Sie mir beschreiben, wie es sich anfühlt?'],
+      ['Was hilft Ihnen ein bisschen – Wärme, eine bestimmte Position, Ablenkung?',
+       'Schläft der Schmerz auch Ihren Schlaf? Beeinträchtigt er Sie sehr im Alltag?'],
+      ['Sie sind tapfer. Aber Tapferkeit heißt nicht alleine leiden. Sprechen Sie bitte jemanden an. 💛',
+       'Ich mach mir Sorgen. Wäre ein Arztgespräch möglich? Ich kann das in Ihre Aufgabenliste eintragen.']
+    ]
+  },
+  erschoepft: {
+    face:'🌙', ring:'#5A4A8A', hdr:'linear-gradient(150deg,#3A2A5A,#4A3A6A)',
+    badge:'🌙 Erschöpfung', banner:'Ruhe darf sein · Momo ist ruhig dabei',
+    keywords:['müde','erschöpft','kraft','energie','matt','schlapp','ausgelaugt','schwach','schlafen','schlaf','ruhe','kaum'],
+    replies:[
+      ['Ich spüre Ihre Müdigkeit sogar durch die Worte. Erschöpfung ist kein Versagen – Ihr Körper sagt Ihnen was Wichtiges. Wie lange schon?',
+       'Das klingt wirklich zermürbend. Haben Sie letzte Nacht gut schlafen können?',
+       'Müdigkeit darf sein. Was raubt Ihnen gerade am meisten Kraft?'],
+      ['Was gibt Ihnen normalerweise Energie zurück – ein Schläfchen, Musik, Bewegung?',
+       'Gibt es jemanden, der Ihnen etwas abnehmen könnte?'],
+      ['Ihr Körper verdient Ruhe. Das ist keine Schwäche – das ist Fürsorge. 🌙',
+       'Was könnten wir heute von Ihrer Liste streichen, damit Sie sich erholen dürfen?']
+    ]
+  },
+  sehnsucht: {
+    face:'🕊️', ring:'#4A8A6A', hdr:'linear-gradient(150deg,#2A4A3A,#3A6A4A)',
+    badge:'🕊️ Sehnsucht', banner:'Erinnerungen dürfen sein · Momo hält inne',
+    keywords:['vermisse','sehnsucht','früher','damals','war schön','gestorben','verstorben','gegangen','weg','fehlt mir','würde gerne','wieder'],
+    replies:[
+      ['Ich höre die Sehnsucht in Ihren Worten. Wer oder was fehlt Ihnen?',
+       'Erinnerungen sind ein Geschenk. Erzählen Sie mir von der Person oder Zeit, die Sie vermissen.',
+       'Das klingt, als trügen Sie jemanden sehr Wichtigen in Ihrem Herzen. Wer ist das?'],
+      ['Was haben Sie mit dieser Person besonders gerne gemacht?',
+       'Wenn Sie jetzt mit dieser Person sprechen könnten – was würden Sie sagen?',
+       'Welche Erinnerung gibt Ihnen das wärmste Gefühl?'],
+      ['Sehnsucht zeigt wie tief Sie lieben können. Das ist etwas sehr Wertvolles. 🕊️',
+       'Diese Erinnerungen gehören Ihnen. Sie müssen sie nie loslassen.']
+    ]
+  },
+  lebensgeschichte: {
+    face:'📖', ring:'#8A6A2A', hdr:'linear-gradient(150deg,#4A3A10,#6A5020)',
+    badge:'📖 Geschichte', banner:'Biografie-Arbeit · Leben erzählen · Würde stärken',
+    keywords:['erzähl','geschichte','früher','jung','aufgewachsen','arbeit','beruf','kinder','mann','frau','familie','war','krieg','ddr','heimat','schule'],
+    replies:[
+      ['Das interessiert mich wirklich! Wo sind Sie aufgewachsen – und wie war das so?',
+       'Ich möchte mehr über Sie erfahren. Erzählen Sie mir – wie war Ihr Leben so?',
+       'Jedes Leben hat so viele Geschichten. Wo fangen wir an – bei der Kindheit, dem Beruf, der Familie?'],
+      ['Wow, das klingt unglaublich. Und was haben Sie damals gemacht – was war Ihr Beruf?',
+       'Haben Sie Kinder? Erzählen Sie mir von Ihrer Familie.',
+       'Wie war das so, in der Zeit aufzuwachsen? Was war ganz anders als heute?'],
+      ['Das ist eine bemerkenswerte Geschichte. Was war der schönste Moment Ihres Lebens?',
+       'Und worauf sind Sie am stolzesten, wenn Sie zurückblicken?',
+       'Was möchten Sie, dass andere Menschen über Sie wissen?']
+    ]
+  }
+};
+
+const NEUTRAL = {
+  face:'🌿', ring:'rgba(127,208,192,.4)', hdr:'linear-gradient(150deg,#10284A,#163558)',
+  badge:'😌 Offen',
+  replies:[
+    ['Hey, schön dass Sie da sind! Wie geht’s Ihnen heute so – körperlich und seelisch?',
+     'Hallo! Momo ist da. Was beschäftigt Sie heute?',
+     'Na, wie läuft der Tag bisher so?'],
+    ['Erzählen Sie mir mehr. Ich höre einfach zu.',
+     'Was ist gerade das Wichtigste für Sie?',
+     'Und wie fühlen Sie sich dabei?'],
+    ['Ich bin ganz für Sie da – kein Stress, kein Zeitdruck. Was möchten Sie mir erzählen?']
+  ]
+};
+
+// ── Conversation flow ──
+let currentEmotion = null;
+let emotionDepth = 0;
+let turnCount = 0;
+let profilePhase = 0; // tracks life-story collection
+
+// Proactive questions weaved in naturally
+const PROACTIVE_CHECKS = [
+  { turn: 3, q: 'Nebenbei – haben Sie heute schon was gegessen? Ich frage weil Ernährung und Stimmung so zusammenhängen.', data: 'nutrition' },
+  { turn: 6, q: 'Und wie war das heute mit Bewegung? Haben Sie ein bisschen was getan?', data: 'movement' },
+  { turn: 10, q: 'Ich frage mich – wie gut haben Sie letzte Nacht geschlafen?', data: 'sleep' },
+  { turn: 14, q: 'Darf ich kurz fragen – haben Sie Ihre Medikamente heute genommen?', data: 'medication' },
+  { turn: 18, q: 'Wie ist das eigentlich so bei Ihnen – haben Sie jemanden, mit dem Sie regelmäßig reden?', data: 'social' },
+];
+
+function detectEmotion(text) {
+  const t = text.toLowerCase();
+  for (const [key, em] of Object.entries(EMOTIONS)) {
+    if (em.keywords?.some(kw => t.includes(kw))) return key;
+  }
+  return null;
+}
+
+function getReply(emotion) {
+  const em = emotion ? EMOTIONS[emotion] : NEUTRAL;
+  const pool = em.replies[Math.min(emotionDepth, em.replies.length-1)];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function processInput(text) {
+  turnCount++;
+
+  // Detect emotion
+  const detected = detectEmotion(text);
+  if (detected) {
+    if (detected === currentEmotion) emotionDepth = Math.min(emotionDepth+1, 2);
+    else { currentEmotion = detected; emotionDepth = 0; }
+  } else if (currentEmotion) {
+    emotionDepth = Math.min(emotionDepth+1, 2);
+  }
+
+  // Save to profile
+  saveProfileData(text, detected);
+
+  // Update Momo state
+  updateMomoEmotion(currentEmotion);
+
+  // Check proactive
+  const proactive = PROACTIVE_CHECKS.find(p => p.turn === turnCount);
+  if (proactive && !currentEmotion) return proactive.q;
+
+  return getReply(currentEmotion);
+}
+
+function saveProfileData(text, emotion) {
+  const t = text.toLowerCase();
+  // Extract life story fragments
+  if (t.match(/aufgewachsen|geboren|heimat|komme aus|stamme/)) {
+    DB.profile.hometown = text.slice(0,80);
+    save(DB);
+  }
+  if (t.match(/beruf|gearbeitet|war ich|habe ich gemacht|arbeit/)) {
+    DB.profile.job = text.slice(0,80);
+    save(DB);
+  }
+  if (t.match(/kinder|kind|sohn|tochter|enkle|familie/)) {
+    DB.profile.family = text.slice(0,80);
+    save(DB);
+  }
+  // Store mood
+  if (emotion) {
+    const today = new Date().toISOString().slice(0,10);
+    DB.mood[today] = emotion;
+    save(DB);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// MOMO VISUAL STATE
+// ══════════════════════════════════════════════════
+function setMomoState(state) {
+  const face = document.getElementById('momoFace');
+  if (!face) return;
+  face.className = 'momo-face ' + state;
+}
+
+function updateMomoEmotion(emotion) {
+  const em = emotion ? EMOTIONS[emotion] : NEUTRAL;
+  // Face
+  const face = document.getElementById('momoFace');
+  if (face) {
+    face.style.transform = 'scale(1.25)';
+    setTimeout(() => {
+      face.textContent = em.face;
+      face.style.transform = 'scale(1)';
+    }, 180);
+  }
+  // Header
+  const hdr = document.getElementById('momoHeader');
+  if (hdr) { hdr.style.transition='background 1.2s ease'; hdr.style.background = em.hdr; }
+  // Ring
+  const ring = document.getElementById('emotionRing');
+  if (ring) ring.style.borderColor = em.ring;
+  // Badge
+  const badge = document.getElementById('emotionBadge');
+  if (badge) { badge.style.opacity='0'; setTimeout(()=>{ badge.textContent=em.badge; badge.style.opacity='1'; },300); }
+  // Banner
+  if (emotion && em.banner) {
+    const b = document.getElementById('valBanner');
+    b.textContent = em.banner;
+    b.style.display = 'block';
+    clearTimeout(window._bannerT);
+    window._bannerT = setTimeout(() => b.style.display='none', 6000);
+  }
+}
+
+function setStatus(text, listening) {
+  document.getElementById('statusText').textContent = text;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (listening ? '' : ' off');
+  if (listening) setMomoState('listening');
+}
+
+// ══════════════════════════════════════════════════
+// CHAT RENDER
+// ══════════════════════════════════════════════════
+function getTime() {
+  const n = new Date();
+  return n.getHours() + ':' + String(n.getMinutes()).padStart(2,'0');
+}
+
+function addUserMsg(text) {
+  const body = document.getElementById('chatBody');
+  const d = document.createElement('div'); d.className='msg u';
+  d.innerHTML = `<div class="bubble">${escHtml(text)}</div><div class="msg-time">${getTime()}</div>`;
+  body.appendChild(d); body.scrollTop = body.scrollHeight;
+}
+
+function addMomoMsg(text, extraChip) {
+  const body = document.getElementById('chatBody');
+  const em = currentEmotion ? EMOTIONS[currentEmotion] : NEUTRAL;
+  const d = document.createElement('div'); d.className='msg a';
+  let html = `<div class="msg-row">
+    <span class="msg-face">${em.face}</span>
+    <div>
+      <div class="bubble">${escHtml(text)}</div>
+      ${extraChip ? `<div class="data-chip">${extraChip}</div>` : ''}
+      ${getStoryChip()}
+    </div>
+  </div>
+  <div class="msg-time">${getTime()}</div>`;
+  d.innerHTML = html;
+  body.appendChild(d);
+  body.scrollTop = body.scrollHeight;
+  if (soundEnabled && currentMode === 'voice') speak(text);
+}
+
+function getStoryChip() {
+  // Show profile data chip occasionally
+  if (turnCount % 5 === 0 && DB.profile.job) {
+    return `<div class="story-chip"><div class="sc-ico">📝</div><div class="sc-text"><strong>Notiert:</strong> ${DB.profile.job.slice(0,60)}</div></div>`;
+  }
+  if (turnCount % 7 === 0 && DB.profile.hometown) {
+    return `<div class="story-chip"><div class="sc-ico">🏡</div><div class="sc-text"><strong>Heimat:</strong> ${DB.profile.hometown.slice(0,60)}</div></div>`;
+  }
+  return '';
+}
+
+function showTyping() {
+  const body = document.getElementById('chatBody');
+  if (document.getElementById('typMsg')) return;
+  const em = currentEmotion ? EMOTIONS[currentEmotion] : NEUTRAL;
+  const d = document.createElement('div'); d.className='msg a'; d.id='typMsg';
+  d.innerHTML = `<div class="typing-wrap"><span class="msg-face">${em.face}</span><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  body.appendChild(d); body.scrollTop = body.scrollHeight;
+}
+function removeTyping() { const t=document.getElementById('typMsg'); if(t) t.remove(); }
+
+let typT;
+function sendText() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim(); if (!text) return;
+  addUserMsg(text); inp.value = ''; autoResize(inp);
+  const reply = processInput(text);
+  setStatus('Momo denkt…', false); setMomoState('thinking');
+  showTyping();
+  const delay = 800 + Math.min(text.length * 18, 1400);
+  clearTimeout(typT);
+  typT = setTimeout(() => {
+    removeTyping();
+    setStatus('Ich bin für Sie da', false); setMomoState('idle');
+    addMomoMsg(reply);
+  }, delay);
+  // update quick replies based on emotion
+  updateQuickReplies();
+}
+
+function quickSay(btn, text) {
+  // Visual feedback
+  document.querySelectorAll('.qopt').forEach(b => b.style.opacity='.5');
+  btn.style.opacity='1'; btn.style.background='var(--sage-lt)'; btn.style.borderColor='var(--moss)';
+  setTimeout(() => document.querySelectorAll('.qopt').forEach(b=>{b.style.opacity='';b.style.background='';b.style.borderColor='';}), 600);
+  // Force emotion from data-e
+  const emo = btn.getAttribute('data-e');
+  if (emo && EMOTIONS[emo]) { currentEmotion=emo; emotionDepth=0; updateMomoEmotion(emo); }
+  addUserMsg(text); showTyping();
+  const reply = getReply(emo||null);
+  turnCount++; saveProfileData(text,emo);
+  clearTimeout(typT);
+  typT = setTimeout(() => { removeTyping(); addMomoMsg(reply); updateQuickReplies(); }, 1100);
+}
+
+function updateQuickReplies() {
+  // Contextual quick replies based on current emotion
+  const contextual = {
+    freude:     [['😊 Was genießen Sie gerade?','Was genießen Sie gerade?'],['🌟 Bester Moment heute','Was war Ihr bester Moment heute?'],['👨‍👩‍👧 Familie erzählen','Ich möchte von meiner Familie erzählen.']],
+    trauer:     [['💬 Mehr erzählen','Ich möchte mehr erzählen.'],['🤝 Was hilft?','Was würde mir helfen?'],['📞 Jemanden anrufen','Ich könnte jemanden anrufen.']],
+    einsamkeit: [['📖 Von früher','Ich erzähle von früher.'],['👥 Besuch wünschen','Ich wünsche mir Besuch.'],['📞 Anruf möglich','Ja, ein Anruf wäre möglich.']],
+    lebensgeschichte: [['👶 Kindheit','Ich erzähle von meiner Kindheit.'],['💼 Beruf','Von meinem Beruf.'],['❤️ Liebe & Familie','Von Liebe und Familie.'],['🏆 Stolzester Moment','Mein stolzester Moment war…']],
+  };
+  const qw = document.getElementById('quickWrap');
+  if (currentEmotion && contextual[currentEmotion]) {
+    qw.innerHTML = contextual[currentEmotion].map(([lbl,txt]) =>
+      `<button class="qopt" onclick="quickSay(this,${JSON.stringify(txt)})">${lbl}</button>`
+    ).join('') + '<button class="qopt" onclick="resetEmotion()">↩ Anderes Thema</button>';
+  }
+}
+
+function resetEmotion() {
+  currentEmotion = null; emotionDepth = 0;
+  updateMomoEmotion(null);
+  document.getElementById('quickWrap').innerHTML = `
+    <button class="qopt" data-e="freude" onclick="quickSay(this,'Heute geht es mir gut!')">😊 Gut</button>
+    <button class="qopt" data-e="trauer" onclick="quickSay(this,'Ich bin traurig.')">😢 Traurig</button>
+    <button class="qopt" data-e="einsamkeit" onclick="quickSay(this,'Ich fühle mich einsam.')">💔 Einsam</button>
+    <button class="qopt" data-e="angst" onclick="quickSay(this,'Ich mache mir Sorgen.')">😟 Sorgen</button>
+    <button class="qopt" data-e="schmerz" onclick="quickSay(this,'Ich habe Schmerzen.')">🦵 Schmerz</button>
+    <button class="qopt" data-e="erschoepft" onclick="quickSay(this,'Ich bin so müde.')">😴 Müde</button>
+    <button class="qopt" data-e="sehnsucht" onclick="quickSay(this,'Ich vermisse jemanden.')">🥺 Vermisse</button>
+    <button class="qopt" data-e="lebensgeschichte" onclick="quickSay(this,'Erzähl mir von meiner Lebensgeschichte.')">📖 Meine Geschichte</button>`;
+}
+
+function clearChat() {
+  currentEmotion=null; emotionDepth=0; turnCount=0;
+  updateMomoEmotion(null);
+  const body = document.getElementById('chatBody');
+  body.innerHTML = `<div class="day-sep">Heute · ${new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>`;
+  resetEmotion();
+  setTimeout(() => addMomoMsg(OPENER_MSGS[Math.floor(Math.random()*OPENER_MSGS.length)]), 600);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function autoResize(el) {
+  el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,80)+'px';
+}
+
+// ══════════════════════════════════════════════════
+// OPENER
+// ══════════════════════════════════════════════════
+const OPENER_MSGS = [
+  'Hey! Schön, dass Sie da sind 🌿 Wie geht’s Ihnen heute – körperlich und seelisch?',
+  'Hallo! Ich freue mich, von Ihnen zu hören. Was beschäftigt Sie heute?',
+  'Guten Tag! Wie war Ihr Morgen bisher – lief es gut?',
+  'Na, wie läuft der Tag? Ich bin ganz Ohr 🌿',
+];
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+let toastT;
+function showToast(m) {
+  const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.getElementById('todayLabel').textContent =
+  new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+
+// Opener message
+setTimeout(() => {
+  addMomoMsg(OPENER_MSGS[Math.floor(Math.random()*OPENER_MSGS.length)]);
+}, 700);
+
+// Keyboard handling
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendText(); }
+});
+
+// Voice-mode: mic is prominent
+if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+  document.getElementById('micBtn').title = 'Tippen zum Sprechen';
+} else {
+  setMode('text');
+  document.getElementById('tab-voice').style.opacity='.4';
+  document.getElementById('tab-voice').style.cursor='not-allowed';
+}
+</script>
+</body>
+</html>
